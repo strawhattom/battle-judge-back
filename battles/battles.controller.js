@@ -56,4 +56,4 @@ router.post('/battles/:id/challenges/:challengeId/submit', async (req,res) => {
 
 })
 
-
+module.exports = router;

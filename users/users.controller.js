@@ -16,7 +16,7 @@ router.post('/register', async (req, res) => {
 
 
 // Middleware !!!
-router.use('/users/')
+// router.use('/users/')
 
 
 router.get('/users', async (req, res) => {
@@ -54,3 +54,5 @@ router.route('/users/me')
     .delete(async (req, res) => {
         // Comme en TP
     });
+
+module.exports = router;

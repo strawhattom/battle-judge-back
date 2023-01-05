@@ -27,3 +27,5 @@ router.post('/teams/:name/add', async (req, res) => {
 router.patch('/teams/:name/judge', async (req, res) => {
 
 })
+
+module.exports = router;

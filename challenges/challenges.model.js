@@ -42,7 +42,8 @@ const challengeSchema = mongoose.Schema({
         required: true,
         type: Number
     },
-    ressources: [fileSchema]
+    ressources: [fileSchema],
+    hints: [String]
 });
 
 const Challenge = mongoose.model('Challenge', challengeSchema);
