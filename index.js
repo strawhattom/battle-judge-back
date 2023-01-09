@@ -2,37 +2,26 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const Sequelize = require('sequelize');
-const sequelize = new Sequelize(process.env.MARIADB_URI);
-
+const sequelize = require('./utils/db-connection');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
 const logger = require('./utils/logger'); // Logger
 
-// Controllers
-const challenges = require('./challenges/challenges.controller');
-const battles = require('./battles/battles.controller');
-const teams = require('./teams/teams.controller');
-const users = require('./users/users.controller');
-
 
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use(challenges);
-app.use(battles);
-app.use(teams);
-app.use(users);
+// Controllers
+app.use(require('./challenges/challenges.controller'));
+app.use(require('./battles/battles.controller'));
+app.use(require('./teams/teams.controller'));
+app.use(require('./users/users.controller'));
 
 // Error handling
-app.use((err, req, res, next) => {
-    console.error(err.stack)
-	logger.info(err.message);
-    res.status(500).send('Error !')
-  })
+app.use(require('./middlewares/error.express'));
 
 const main = async() => {
 	try {
