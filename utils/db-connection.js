@@ -1,5 +1,15 @@
 require('dotenv/config');
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize(process.env.MARIADB_URI);
+const logger = require('./logger'); // Logger
 
-module.exports = sequelize;
+try {
+    const sequelize = new Sequelize(process.env.MARIADB_URI, {
+        logging: false
+    });
+    module.exports = sequelize;
+} catch (err) {
+    logger.error("Could not connect to db");
+    process.exit();
+}
+
+

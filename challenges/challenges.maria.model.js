@@ -1,12 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../utils/db-connection');
 
-const Challenge = sequelize.define('Challenge', {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            unique: true
-        },
+const Challenge = sequelize.define('challenges', {
         mongo_challenge_id: {
             type: DataTypes.STRING(16)
         },
@@ -21,7 +16,8 @@ const Challenge = sequelize.define('Challenge', {
         }
     },
     {
-        timestamps:false
+        timestamps: false,
+        freezeTableName: true,
     }
 );
 

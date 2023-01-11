@@ -1,23 +1,21 @@
 const passport = require('passport');
 const { Strategy } = require('passport-local');
-const User = require('../users/users.model');
-const usersService = require('../users/users.service');
+const service = require('../users/users.service');
+const logger = require('../utils/logger');
 
 passport.use(new Strategy(
-    function (username, password, done) {
-        User.findOne({ username }, async function (err, user) {
-            if (err)    return done(err)
-            if (!user)  {
-                console.log("[-] User not found");
-                return done(null, false);
-            }
-            if (!await usersService.verify(username, password)){
-                console.log("[-] Wrong password...");
-                return done(null, false);
-            }
-            return done(null, user);
-        });
-    }
-));
+    async (username, password, done) => {
+        const user = await service.findByName(username);
+        if (!user)  {
+            logger.info(`Login error: ${username} not found`);
+            return done(null, false);
+        }
+        if (!await service.verify(username, password)){
+            logger.info(`Login error: wrong password`);
+            return done(null, false);
+        }
+        return done(null, user);
+    })
+);
 
 module.exports = passport

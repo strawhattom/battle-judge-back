@@ -9,10 +9,13 @@ const app = express();
 const port = process.env.PORT || 3000;
 const logger = require('./utils/logger'); // Logger
 
-
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors());
+
+app.get('/', (req, res) => {
+	return res.status(200).send({'message': '/register to register an account'});
+})
 
 // Controllers
 app.use(require('./challenges/challenges.controller'));

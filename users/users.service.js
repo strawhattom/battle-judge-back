@@ -1,50 +1,56 @@
 const User = require('./users.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const UndefinedParametersError = require('../errors/UndefinedParametersError');
+const logger = require('../utils/logger');
+
 require('dotenv').config();
 
-const saltRounds = 10;
-
-async function register(username, password) {
+async function register(username, password, mail) {
     try {
-        if (!username || !password) throw new Error("undefined parameters");
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        if (!username || !password || !mail) throw new UndefinedParametersError();
+
         const user = await User.create({
             username,
-            password:hashedPassword
+            password,
+            mail
         });
         return user;
     } catch (err) {
+        logger.error(`Registration error: ${err.errors[0].message}`);
 		return null;
     }
 }
 
 async function findAll() {
-    try {
-        return User.find({});
-    } catch (err) {
-        return {};
-    }
+    return await User.findAll();
 }
 
-async function findOne(_id) {
-    try {
-        return await User.findOne({_id});
-    } catch (err) {
-        return {};
-    }
+async function findById(id) {
+    return await User.findByPk(id);
 }
 
-async function update(id, property) {
-    try {
-        if (property.role) delete property.role;
-        if (property.password) {
-            const hashedPassword = await bcrypt.hash(property.password, saltRounds);
-            property.password = hashedPassword;
+async function findByName(username) {
+    return await User.findOne({
+        where: {
+            username
         }
-        await User.findOneAndUpdate({id}, property);
-        return await findOne(id);
+    });
+}
+
+async function update(id, properties) {
+    try {
+        if (properties.role) delete property.role;
+        if (properties.password) {
+            const hashedPassword = await bcrypt.hash(properties.password, 10);
+            properties.password = hashedPassword;
+        }
+        const user = find(id);
+        await user.update(properties);
+        await user.save();
+        return user;
     } catch (err) {
+        logger.error(err);
         return null;
     }
 }
@@ -53,18 +59,21 @@ async function deleteUser(id) {
     try {
         return await User.findOneAndDelete({_id:id});
     } catch (err) {
+        logger.error(err);
         return null;
     }
 }
 
 async function verify(username, password) {
     try {
-        if (!username || !password) throw new Error("undefined parameters");
-        const user = await User.findOne({username});
+        if (!username || !password) throw new UndefinedParametersError();
+        const user = await findByName(username);
         if (!user) throw new Error("Unknown username");
         const match = await bcrypt.compare(password, user.password);
-        return match;
+        if (!match) throw new Error('Password not match');
+        return user;
     } catch (err) {
+        logger.error(err);
         return null;
     }
 }
@@ -76,7 +85,8 @@ async function generateJWT(id) {
 module.exports = {
     register,
     findAll,
-    findOne,
+    findById,
+    findByName,
     verify,
     generateJWT,
     update,
