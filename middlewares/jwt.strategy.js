@@ -10,13 +10,16 @@ passport.use(new Strategy(
             secretOrKey: process.env.JWT_SECRET                         // jwt secret extracted from .env
         },
         async (token, done) => {
-            const user = await service.findByName(token.sub)
-            if (user)   return done(null, {
-                username:user.username,
-                role:user.role,
-                team:user.team
-            });   // user found
-            return done(null, false);
+            const user = await service.findByName(token.sub);
+            if (!user) return done(null, false);
+            const { id, username, mail, team, role } = user.dataValues;
+            return done(null, {
+                id,
+                username,
+                mail,
+                team,
+                role,
+            });
         }
     )
 );

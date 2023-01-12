@@ -3,6 +3,7 @@ const service = require('./users.service');
 const passport = require('passport');
 require('../middlewares/local.strategy');
 require('../middlewares/jwt.strategy');
+const authorized = require('../middlewares/authorization.middleware');
 
 // authentification, autorisation, inscription
 
@@ -18,49 +19,51 @@ router.post('/login',
 router.post('/register', async (req, res) => {
     const { username, password, mail } = req.body;
     const user = await service.register(username, password, mail);
-    if (!user) return res.status(400).send({'message': 'Could not register the user'});
+    if (!user) return res.status(400).send({message: 'Could not register the user'});
     return res.status(201).send(user);
 });
 
-
 // Middleware !!!
-// router.use('/users/')
+router.use('/users',passport.authenticate('jwt', {
+    session:false
+}));
 
-
-router.get('/users', async (req, res) => {
-    // Récupère tous les utilisateurs
+router.get('/users',
+    authorized(['admin']),
+    async (req, res) => {
+        // Récupère tous les utilisateurs
+        const users = await service.findAll();
+        return res.status(200).send(users);
 });
 
 router.get('/users/participants', async (req, res) => {
-    // Récupère tous les participants
+    return res.status(200).send(await service.findAllParticipants());
 });
 
 router.get('/users/judges', async (req, res) => {
-    // Récupère tous les juges
+    return res.status(200).send(await service.findAllJudges());
 });
-
-// Pour les admins
-router.route('/users/:id')
-    .get(async (req, res) => {
-        // Récupère les informations de :id
-    })
-    .patch(async (req, res) => {
-        // Modifie les infomartions de :id
-    })
-    .delete(async (req, res) => {
-        // Supprime l'utilisateur :id
-    });
 
 // Pour les utilisateurs
 router.route('/users/me')
     .get(async (req, res) => {
-        // Comme en TP
+        return res.status(200).send(req.user);
     })
     .patch(async (req, res) => {
-        // Comme en TP
+        const update = await service.update(req.user, req.body);
+        if (!update) return res.status(400).send({ message: 'Could not update the user' });
+        return res.status(200).send(update);
     })
     .delete(async (req, res) => {
-        // Comme en TP
+        const deletedUser = await service.deleteUser(req.user.id);
+        if (!deletedUser) return res.status(200).send({
+                user: deletedUser,
+                deleted: false
+            });
+        return res.status(200).send({
+            user: deletedUser,
+            deleted: true
+        });
     });
 
 module.exports = router;

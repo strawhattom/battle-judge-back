@@ -17,13 +17,15 @@ async function register(username, password, mail) {
         });
         return user;
     } catch (err) {
-        logger.error(`Registration error: ${err.errors[0].message}`);
+        logger.error(`Registration error: ${err.message}`);
 		return null;
     }
 }
 
 async function findAll() {
-    return await User.findAll();
+    return await User.findAll({
+        attributes: ['id', 'username', 'mail', 'role', 'team']
+    });
 }
 
 async function findById(id) {
@@ -38,17 +40,34 @@ async function findByName(username) {
     });
 }
 
-async function update(id, properties) {
+async function findAllParticipants() {
+    return await User.findAll({
+        where: {
+            role: 'participant' 
+        }
+    })
+}
+
+async function findAllJudges() {
+    return await User.findAll({
+        where: {
+            role: 'judge' 
+        }
+    })
+}
+
+async function update(user, properties) {
     try {
+        if (!user.id) throw new UndefinedParametersError();
         if (properties.role) delete property.role;
         if (properties.password) {
             const hashedPassword = await bcrypt.hash(properties.password, 10);
             properties.password = hashedPassword;
         }
-        const user = find(id);
-        await user.update(properties);
-        await user.save();
-        return user;
+        const tempUser = await findById(user.id);
+        await tempUser.update(properties);
+        await tempUser.save();
+        return tempUser;
     } catch (err) {
         logger.error(err);
         return null;
@@ -57,7 +76,8 @@ async function update(id, properties) {
 
 async function deleteUser(id) {
     try {
-        return await User.findOneAndDelete({_id:id});
+        const user = await findById(id);
+        return await user.destroy();
     } catch (err) {
         logger.error(err);
         return null;
@@ -85,6 +105,8 @@ async function generateJWT(id) {
 module.exports = {
     register,
     findAll,
+    findAllParticipants,
+    findAllJudges,
     findById,
     findByName,
     verify,

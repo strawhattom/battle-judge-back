@@ -44,6 +44,7 @@ const User = sequelize.define('users', {
                     user.dataValues.password = bcrypt.hashSync(user.password, 10);
                 });
             },
+
         }
     }
 )

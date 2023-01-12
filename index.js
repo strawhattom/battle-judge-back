@@ -38,9 +38,6 @@ const main = async() => {
 		logger.error(err.message);
 		return;
 	}
-
-	logger.info('Launching API...');
-
 	app.listen(port, () => {
 		logger.info(`API listening on port ${port}, visit http://localhost:${port}/`)
 	})
