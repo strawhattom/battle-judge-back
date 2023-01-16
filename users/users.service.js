@@ -76,6 +76,7 @@ async function update(user, properties) {
 
 async function deleteUser(id) {
     try {
+        if (!id) throw new UndefinedParametersError();
         const user = await findById(id);
         return await user.destroy();
     } catch (err) {
