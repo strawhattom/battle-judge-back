@@ -26,6 +26,8 @@ app.use(require('./users/users.controller'));
 // Error handling
 app.use(require('./middlewares/error.express'));
 
+module.exports = app; // for tests
+
 const main = async() => {
 	try {
 		logger.info("Trying to connect to databases.");
