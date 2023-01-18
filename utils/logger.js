@@ -1,14 +1,14 @@
-const { createLogger, format, transports } = require('winston')
-const { combine, splat, timestamp, printf } = format
-require('dotenv/config')
+const { createLogger, format, transports } = require('winston');
+const { combine, splat, timestamp, printf } = format;
+require('dotenv/config');
 
 const outFormat = printf(({ level, message, timestamp, ...metadata }) => {
-  let msg = `${timestamp} [${level}] : ${message} `
+  let msg = `${timestamp} [${level}] : ${message} `;
   if (metadata && metadata.length > 0) {
-    msg += JSON.stringify(metadata)
+    msg += JSON.stringify(metadata);
   }
-  return msg
-})
+  return msg;
+});
 
 const levels = {
   error: 0,
@@ -18,7 +18,7 @@ const levels = {
   verbose: 4,
   debug: 5,
   silly: 6
-}
+};
 
 const logger = createLogger({
   levels,
@@ -34,5 +34,6 @@ const logger = createLogger({
     new transports.Console({ level: 'info' }),
     new transports.File({ filename: process.env.LOG_FILE, level: 'debug' })
   ]
-})
-module.exports = logger
+});
+
+module.exports = logger;

@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize')
-const sequelize = require('../utils/db-connection')
+const { DataTypes } = require('sequelize');
+const sequelize = require('../utils/db-connection');
 
 const Challenge = sequelize.define(
   'challenges',
@@ -21,6 +21,6 @@ const Challenge = sequelize.define(
     timestamps: false,
     freezeTableName: true
   }
-)
+);
 
-module.exports = Challenge
+module.exports = Challenge;

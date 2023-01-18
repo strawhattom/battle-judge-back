@@ -3,4 +3,4 @@ module.exports = {
   testMatch: ['**/**/**.**.spec.js'],
   forceExit: true,
   verbose: true
-}
+};

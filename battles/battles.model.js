@@ -1,2 +1,2 @@
-const { DataTypes } = require('sequelize')
-const sequelize = require('../utils/db-connection')
+const { DataTypes } = require('sequelize');
+const sequelize = require('../utils/db-connection');

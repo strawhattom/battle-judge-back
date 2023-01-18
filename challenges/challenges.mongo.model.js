@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 // https://mongoosejs.com/docs/subdocs.html
 
@@ -23,7 +23,7 @@ const fileSchema = mongoose.Schema({
     required: true,
     type: Number
   }
-})
+});
 
 const challengeSchema = mongoose.Schema({
   title: {
@@ -44,8 +44,8 @@ const challengeSchema = mongoose.Schema({
   },
   ressources: [fileSchema],
   hints: [String]
-})
+});
 
-const Challenge = mongoose.model('Challenge', challengeSchema)
+const Challenge = mongoose.model('Challenge', challengeSchema);
 
-module.exports = Challenge
+module.exports = Challenge;

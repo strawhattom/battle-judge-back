@@ -1,6 +1,6 @@
-const { DataTypes } = require('sequelize')
-const sequelize = require('../utils/db-connection')
-const bcrypt = require('bcrypt')
+const { DataTypes } = require('sequelize');
+const sequelize = require('../utils/db-connection');
+const bcrypt = require('bcrypt');
 
 const User = sequelize.define(
   'users',
@@ -38,16 +38,16 @@ const User = sequelize.define(
     hooks: {
       // Create one
       beforeCreate: (user) => {
-        user.dataValues.password = bcrypt.hashSync(user.password, 10)
+        user.dataValues.password = bcrypt.hashSync(user.password, 10);
       },
       // Create multiple
       beforeBulkCreate: (users) => {
         users.forEach((user) => {
-          user.dataValues.password = bcrypt.hashSync(user.password, 10)
-        })
+          user.dataValues.password = bcrypt.hashSync(user.password, 10);
+        });
       }
     }
   }
-)
+);
 
-module.exports = User
+module.exports = User;

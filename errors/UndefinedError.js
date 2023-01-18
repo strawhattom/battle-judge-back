@@ -1,9 +1,9 @@
 class UndefinedError extends Error {
   constructor() {
-    super('Undefined parameters !')
-    this.name = 'UndefinedError'
-    this.code = 400
+    super('Undefined parameters !');
+    this.name = 'UndefinedError';
+    this.code = 400;
   }
 }
 
-module.exports = UndefinedError
+module.exports.UndefinedError = UndefinedError;

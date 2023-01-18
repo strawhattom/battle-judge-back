@@ -4,7 +4,7 @@
  */
 const save = async (id, file) => {
   try {
-    if (!file || !id) throw new Error('Undefined file')
+    if (!file || !id) throw new Error('Undefined file');
     if (
       !file.fieldname ||
       !file.originalname ||
@@ -13,24 +13,24 @@ const save = async (id, file) => {
       !file.buffer ||
       !file.size
     )
-      throw new Error('Missing file fields')
-    return await File.create(file)
+      throw new Error('Missing file fields');
+    return await File.create(file);
   } catch (error) {
-    console.error(error)
-    return null
+    console.error(error);
+    return null;
   }
-}
+};
 
 const getAll = async () => {
   try {
-    return await File.find({})
+    return await File.find({});
   } catch (error) {
-    console.error(error)
-    return null
+    console.error(error);
+    return null;
   }
-}
+};
 
 module.exports = {
   save,
   getAll
-}
+};

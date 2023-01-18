@@ -4,8 +4,9 @@
   "description": "API for Battle-Judge",
   "main": "index.js",
   "scripts": {
-    "test": "jest --detectOpenHandles",
-    "start": "node index.js"
+    "test": "jest --detectOpenHandles --passWithNoTests",
+    "start": "node index.js",
+    "prepare": "husky install"
   },
   "author": "",
   "license": "ISC",
@@ -37,6 +38,7 @@
     "lint-staged": "^13.1.0",
     "prettier": "2.8.3",
     "standard": "^17.0.0",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.3",
+    "husky": "^8.0.0"
   }
 }
