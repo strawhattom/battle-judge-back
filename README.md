@@ -1,5 +1,11 @@
 # battle-judge-back
 
+## Dependencies
+
+### Global dependency
+prettier => `npm install --global prettier` \
+project-related => `npm install`
+
 ## .env
 
 Development environment config only !!! (to change for production)
