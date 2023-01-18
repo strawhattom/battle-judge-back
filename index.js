@@ -63,11 +63,15 @@ const main = async () => {
   // to-do loop to retry the connection...
   try {
     logger.info('Trying to connect to databases.');
+
+    // MongoDB connection
     mongoose.set('strictQuery', true); // idk why to remove DeprecationWarning
     await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 1000
+      serverSelectionTimeoutMS: 1000 // time out after 1s for the connection
     });
     logger.info('Connected to mongoDB');
+
+    // MariaDB connection
     await sequelize.authenticate();
     logger.info('Connected to mariaDB');
   } catch (err) {
