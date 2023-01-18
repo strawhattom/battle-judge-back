@@ -3,6 +3,7 @@
 ## Dependencies
 
 ### Global dependency
+
 prettier => `npm install --global prettier` \
 project-related => `npm install`
 
