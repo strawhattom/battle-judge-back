@@ -17,12 +17,10 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.get('/', (req, res) => {
-  return res
-    .status(200)
-    .send({
-      message:
-        "Hello, welcome to Battle Judge 's API, to start with, register yourself at /register and then /login to get access to your token."
-    });
+  return res.status(200).send({
+    message:
+      "Hello, welcome to Battle Judge 's API, to start with, register yourself at /register and then /login to get access to your token."
+  });
 });
 
 // Controllers
@@ -42,7 +40,7 @@ app.use(
 );
 
 app.use(
-  '/battles/',
+  '/battles',
   passport.authenticate('jwt', { session: false }),
   require('./battles/battles.controller')
 );
