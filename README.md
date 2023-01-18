@@ -3,6 +3,7 @@
 ## .env
 
 Development environment config only !!! (to change for production)
+
 ```
 MONGO_URI=mongodb://root:root@localhost:27017
 MARIADB_URI=mariadb://root:toor@localhost:3306/battle_judge
