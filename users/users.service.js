@@ -1,116 +1,104 @@
 const User = require('./users.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const UndefinedParametersError = require('../errors/UndefinedParametersError');
-const logger = require('../utils/logger');
-
+const UndefinedError = require('../errors/UndefinedError');
+const NotFoundError = require('../errors/NotFoundError');
+const ValidationError = require('../errors/ValidationError');
+const DuplicateError = require('../errors/DuplicateError');
 require('dotenv').config();
 
 async function register(username, password, mail) {
-    try {
-        if (!username || !password || !mail) throw new UndefinedParametersError();
+  try {
+    if (!username || !password || !mail) throw new UndefinedError();
 
-        const user = await User.create({
-            username,
-            password,
-            mail
-        });
-        return user;
-    } catch (err) {
-        logger.error(`Registration error: ${err.message}`);
-		return null;
-    }
+    const user = await User.create({
+      username,
+      password,
+      mail
+    });
+    return user;
+  } catch (err) {
+    if (err.name === 'SequelizeUniqueConstraintError')
+      throw new DuplicateError(`Username ${username} already taken`);
+    throw err;
+  }
 }
 
 async function findAll() {
-    return await User.findAll({
-        attributes: ['id', 'username', 'mail', 'role', 'team']
-    });
+  return await User.findAll({
+    attributes: ['id', 'username', 'mail', 'role', 'team']
+  });
 }
 
 async function findById(id) {
-    return await User.findByPk(id);
+  const user = await User.findByPk(id);
+  if (!user) throw new NotFoundError(`User ${username} not found`);
+  return user;
 }
 
 async function findByName(username) {
-    return await User.findOne({
-        where: {
-            username
-        }
-    });
+  const user = await User.findOne({
+    where: {
+      username
+    }
+  });
+  if (!user) throw new NotFoundError(`User ${username} not found`);
+  return user;
 }
 
 async function findAllParticipants() {
-    return await User.findAll({
-        where: {
-            role: 'participant' 
-        }
-    })
+  return await User.findAll({
+    where: {
+      role: 'participant'
+    }
+  });
 }
 
 async function findAllJudges() {
-    return await User.findAll({
-        where: {
-            role: 'judge' 
-        }
-    })
+  return await User.findAll({
+    where: {
+      role: 'judge'
+    }
+  });
 }
 
 async function update(user, properties) {
-    try {
-        if (!user.id) throw new UndefinedParametersError();
-        if (properties.role) delete property.role;
-        if (properties.password) {
-            const hashedPassword = await bcrypt.hash(properties.password, 10);
-            properties.password = hashedPassword;
-        }
-        const tempUser = await findById(user.id);
-        await tempUser.update(properties);
-        await tempUser.save();
-        return tempUser;
-    } catch (err) {
-        logger.error(err);
-        return null;
-    }
+  if (!user.id) throw new UndefinedError();
+  if (properties.role) delete properties.role;
+  const tempUser = await findById(user.id);
+  await tempUser.update(properties);
+  return await tempUser.save(); // updated user
 }
 
 async function deleteUser(id) {
-    try {
-        const user = await findById(id);
-        return await user.destroy();
-    } catch (err) {
-        logger.error(err);
-        return null;
-    }
+  if (!id) throw new UndefinedError();
+  const user = await findById(id);
+  return await user.destroy();
 }
 
 async function verify(username, password) {
-    try {
-        if (!username || !password) throw new UndefinedParametersError();
-        const user = await findByName(username);
-        if (!user) throw new Error("Unknown username");
-        const match = await bcrypt.compare(password, user.password);
-        if (!match) throw new Error('Password not match');
-        return user;
-    } catch (err) {
-        logger.error(err);
-        return null;
-    }
+  if (!username || !password) throw new UndefinedError();
+  const user = await findByName(username);
+  if (!user) throw new NotFoundError(`Unknown user ${username}`);
+  const match = await bcrypt.compare(password, user.password);
+  if (!match)
+    throw new ValidationError(`Password not match for user ${username}`);
+  return user;
 }
 
 async function generateJWT(id) {
-    return jwt.sign({sub:id}, process.env.JWT_SECRET);
+  return jwt.sign({ sub: id }, process.env.JWT_SECRET);
 }
 
 module.exports = {
-    register,
-    findAll,
-    findAllParticipants,
-    findAllJudges,
-    findById,
-    findByName,
-    verify,
-    generateJWT,
-    update,
-    deleteUser
-}
+  register,
+  findAll,
+  findAllParticipants,
+  findAllJudges,
+  findById,
+  findByName,
+  verify,
+  generateJWT,
+  update,
+  deleteUser
+};
