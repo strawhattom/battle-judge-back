@@ -12,3 +12,4 @@ rules:
     ['error', { anonymous: 'always', named: 'never', asyncArrow: 'always' }]
   curly: ['error', 'multi']
   semi: ['error', 'always']
+  no-unused-vars: 'warn'
