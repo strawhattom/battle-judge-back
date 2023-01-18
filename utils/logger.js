@@ -4,9 +4,7 @@ require('dotenv/config');
 
 const outFormat = printf(({ level, message, timestamp, ...metadata }) => {
   let msg = `${timestamp} [${level}] : ${message} `;
-  if (metadata && metadata.length > 0) {
-    msg += JSON.stringify(metadata);
-  }
+  if (metadata && metadata.length > 0) msg += JSON.stringify(metadata);
   return msg;
 });
 

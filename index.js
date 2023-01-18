@@ -7,6 +7,7 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
 const passport = require('passport');
+const setupErrorHandler = require('./errors/setup-error.handler');
 require('./middlewares/jwt.strategy');
 const logger = require('./utils/logger'); // Logger
 
@@ -58,16 +59,22 @@ app.use(
 app.use(errorHandler);
 
 const main = async () => {
+  // to-do loop to retry the connection...
   try {
     logger.info('Trying to connect to databases.');
+
+    // MongoDB connection
     mongoose.set('strictQuery', true); // idk why to remove DeprecationWarning
-    mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 1000 // time out after 1s for the connection
+    });
     logger.info('Connected to mongoDB');
+
+    // MariaDB connection
     await sequelize.authenticate();
     logger.info('Connected to mariaDB');
   } catch (err) {
-    logger.error(err.message);
-    return;
+    setupErrorHandler(err);
   }
   app.listen(port, () => {
     logger.info(

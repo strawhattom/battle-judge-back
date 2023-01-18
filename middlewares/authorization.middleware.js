@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 const isAuthorized =
   (allowed = []) =>
   (req, res, next) => {
