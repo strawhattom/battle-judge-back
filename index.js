@@ -7,7 +7,7 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
 const passport = require('passport');
-const startErrorHandler = require('./errors/setup-error.handler');
+const setupErrorHandler = require('./errors/setup-error.handler');
 require('./middlewares/jwt.strategy');
 const logger = require('./utils/logger'); // Logger
 
@@ -18,7 +18,6 @@ const challengesController = require('./challenges/challenges.controller');
 const battlesController = require('./battles/battles.controller');
 const teamsController = require('./teams/teams.controller');
 const errorHandler = require('./errors/http-error.handler');
-const setupErrorHandler = require('./errors/setup-error.handler');
 
 app.use(express.json());
 app.use(bodyParser.json());
