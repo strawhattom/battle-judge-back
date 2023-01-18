@@ -6,4 +6,4 @@ class UndefinedError extends Error {
   }
 }
 
-module.exports.UndefinedError = UndefinedError;
+module.exports = UndefinedError;

@@ -24,49 +24,40 @@ router
   })
   .patch(async (req, res) => {
     const update = await service.update(req.user, req.body);
-    if (!update)
-      return res.status(400).send({ message: 'Could not update the user' });
     return res.status(200).send(update);
   })
   .delete(async (req, res) => {
     const deletedUser = await service.deleteUser(req.user.id);
-    if (!deletedUser)
-      return res.status(200).send({
-        user: deletedUser,
-        deleted: false
-      });
-    return res.status(200).send({
-      user: deletedUser,
-      deleted: true
-    });
+    return res.status(200).send(deletedUser);
   });
 
 router.use('/:id', authorized(['admin']));
 
 router
   .route('/:id')
-  .get(async (req, res) => {
-    const user = await service.findById(req.params.id);
-    if (!user) return res.status(400).send({ message: 'User not found' });
-    return res.status(200).send(user);
+  .get(async (req, res, next) => {
+    try {
+      const user = await service.findById(req.params.id);
+      return res.status(200).send(user);
+    } catch (err) {
+      next(err);
+    }
   })
-  .patch(async (req, res) => {
-    const update = await service.update({ id: req.params.id }, req.body);
-    if (!update)
-      return res.status(400).send({ message: 'Could not update the user' });
-    return res.status(200).send(update);
+  .patch(async (req, res, next) => {
+    try {
+      const updatedUser = await service.update({ id: req.params.id }, req.body);
+      return res.status(200).send(updatedUser);
+    } catch (err) {
+      next(err);
+    }
   })
-  .delete(async (req, res) => {
-    const deletedUser = await service.deleteUser(req.params.id);
-    if (!deletedUser)
-      return res.status(200).send({
-        user: deletedUser,
-        deleted: false
-      });
-    return res.status(200).send({
-      user: deletedUser,
-      deleted: true
-    });
+  .delete(async (req, res, next) => {
+    try {
+      const deletedUser = await service.deleteUser(req.params.id);
+      return res.status(200).send(deletedUser);
+    } catch (err) {
+      next(err);
+    }
   });
 
 module.exports = router;

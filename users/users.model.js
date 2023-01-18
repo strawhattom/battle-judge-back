@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../utils/db-connection');
 const bcrypt = require('bcrypt');
+const saltRounds = 10; // REDACTED
 
 const User = sequelize.define(
   'users',
@@ -38,13 +39,18 @@ const User = sequelize.define(
     hooks: {
       // Create one
       beforeCreate: (user) => {
-        user.dataValues.password = bcrypt.hashSync(user.password, 10);
+        user.dataValues.password = bcrypt.hashSync(user.password, saltRounds);
       },
       // Create multiple
       beforeBulkCreate: (users) => {
         users.forEach((user) => {
-          user.dataValues.password = bcrypt.hashSync(user.password, 10);
+          user.dataValues.password = bcrypt.hashSync(user.password, saltRounds);
         });
+      },
+      beforeUpdate: (user) => {
+        // Hash password if the user changed his password
+        if (user.changed('password'))
+          user.dataValues.password = bcrypt.hashSync(user.password, saltRounds);
       }
     }
   }

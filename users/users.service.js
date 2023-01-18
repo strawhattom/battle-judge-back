@@ -2,8 +2,9 @@ const User = require('./users.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const UndefinedError = require('../errors/UndefinedError');
-const logger = require('../utils/logger');
-
+const NotFoundError = require('../errors/NotFoundError');
+const ValidationError = require('../errors/ValidationError');
+const DuplicateError = require('../errors/DuplicateError');
 require('dotenv').config();
 
 async function register(username, password, mail) {
@@ -17,8 +18,9 @@ async function register(username, password, mail) {
     });
     return user;
   } catch (err) {
-    logger.error(`Registration error: ${err.message}`);
-    return null;
+    if (err.name === 'SequelizeUniqueConstraintError')
+      throw new DuplicateError(`Username ${username} already taken`);
+    throw err;
   }
 }
 
@@ -29,15 +31,19 @@ async function findAll() {
 }
 
 async function findById(id) {
-  return await User.findByPk(id);
+  const user = await User.findByPk(id);
+  if (!user) throw new NotFoundError(`User ${username} not found`);
+  return user;
 }
 
 async function findByName(username) {
-  return await User.findOne({
+  const user = await User.findOne({
     where: {
       username
     }
   });
+  if (!user) throw new NotFoundError(`User ${username} not found`);
+  return user;
 }
 
 async function findAllParticipants() {
@@ -57,46 +63,27 @@ async function findAllJudges() {
 }
 
 async function update(user, properties) {
-  try {
-    if (!user.id) throw new UndefinedError();
-    if (properties.role) delete properties.role;
-    if (properties.password) {
-      const hashedPassword = await bcrypt.hash(properties.password, 10);
-      properties.password = hashedPassword;
-    }
-    const tempUser = await findById(user.id);
-    await tempUser.update(properties);
-    await tempUser.save();
-    return tempUser;
-  } catch (err) {
-    logger.error(err);
-    return null;
-  }
+  if (!user.id) throw new UndefinedError();
+  if (properties.role) delete properties.role;
+  const tempUser = await findById(user.id);
+  await tempUser.update(properties);
+  return await tempUser.save(); // updated user
 }
 
 async function deleteUser(id) {
-  try {
-    if (!id) throw new UndefinedError();
-    const user = await findById(id);
-    return await user.destroy();
-  } catch (err) {
-    logger.error(err);
-    return null;
-  }
+  if (!id) throw new UndefinedError();
+  const user = await findById(id);
+  return await user.destroy();
 }
 
 async function verify(username, password) {
-  try {
-    if (!username || !password) throw new UndefinedError();
-    const user = await findByName(username);
-    if (!user) throw new Error('Unknown username');
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) throw new Error('Password not match');
-    return user;
-  } catch (err) {
-    logger.error(err);
-    return null;
-  }
+  if (!username || !password) throw new UndefinedError();
+  const user = await findByName(username);
+  if (!user) throw new NotFoundError(`Unknown user ${username}`);
+  const match = await bcrypt.compare(password, user.password);
+  if (!match)
+    throw new ValidationError(`Password not match for user ${username}`);
+  return user;
 }
 
 async function generateJWT(id) {

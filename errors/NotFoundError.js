@@ -6,4 +6,4 @@ class NotFoundError extends Error {
   }
 }
 
-module.exports.NotFoundError = NotFoundError;
+module.exports = NotFoundError;

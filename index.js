@@ -6,11 +6,17 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
-
 const passport = require('passport');
 require('./middlewares/jwt.strategy');
-
 const logger = require('./utils/logger'); // Logger
+
+// Controllers
+const authController = require('./users/users.auth.controller');
+const usersController = require('./users/users.controller');
+const challengesController = require('./challenges/challenges.controller');
+const battlesController = require('./battles/battles.controller');
+const teamsController = require('./teams/teams.controller');
+const errorHandler = require('./errors/http-error.handler');
 
 app.use(express.json());
 app.use(bodyParser.json());
@@ -23,33 +29,33 @@ app.get('/', (req, res) => {
   });
 });
 
-// Controllers
-
-app.use(require('./users/users.auth.controller'));
+app.use(authController);
 
 app.use(
   '/users',
   passport.authenticate('jwt', { session: false }),
-  require('./users/users.controller')
+  usersController
 );
 
 app.use(
   '/challenges',
   passport.authenticate('jwt', { session: false }),
-  require('./challenges/challenges.controller')
+  challengesController
 );
 
 app.use(
   '/battles',
   passport.authenticate('jwt', { session: false }),
-  require('./battles/battles.controller')
+  battlesController
 );
 
 app.use(
   '/teams',
   passport.authenticate('jwt', { session: false }),
-  require('./teams/teams.controller')
+  teamsController
 );
+
+app.use(errorHandler);
 
 const main = async () => {
   try {
