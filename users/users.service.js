@@ -32,7 +32,7 @@ async function findAll() {
 
 async function findById(id) {
   const user = await User.findByPk(id);
-  if (!user) throw new NotFoundError(`User ${username} not found`);
+  if (!user) throw new NotFoundError(`User id ${id} not found`);
   return user;
 }
 
