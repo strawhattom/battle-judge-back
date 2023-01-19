@@ -9,12 +9,12 @@ module.exports = (err) => {
       break;
     case 'SequelizeConnectionRefusedError':
       logger.error(
-        'Could not connect to MariaDB... Make sure to have MARIADB_URI environment variable and it the service is up'
+        'Could not connect to MariaDB... Make sure to have MARIADB_URI environment variable and that db service is up'
       );
       break;
     case 'MongooseServerSelectionError':
       logger.error(
-        'Could not connect to MongoDB... Make sure to have MONGO_URI environment variable and it the service is up'
+        'Could not connect to MongoDB... Make sure to have MONGO_URI environment variable and that db service is up'
       );
       break;
     default:
