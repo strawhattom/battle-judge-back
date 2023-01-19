@@ -1,5 +1,3 @@
-DROP SCHEMA IF EXISTS battle_judge;
-CREATE SCHEMA battle_judge;
 USE battle_judge;
 
 -- Tables
@@ -71,4 +69,5 @@ CREATE TABLE IF NOT EXISTS leaderboards (
         ON UPDATE CASCADE
 );
 
-INSERT INTO teams (name) VALUES ('none');
+INSERT INTO `teams` (`name`) VALUES ('null');
+INSERT INTO `users` (`role`, `username`, `mail`, `password`, `team`) VALUES ('admin', 'admin', 'redacted@admin.com', '$2a$10$i4WBNsKWBp1lYDoxJjdED.13R0QkE/pALkKHQMJ5y9QUMOe4QIkFG', '1');

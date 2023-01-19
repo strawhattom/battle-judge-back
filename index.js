@@ -1,23 +1,23 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const sequelize = require('./utils/db-connection');
+const sequelize = require('./src/utils/db-connection');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
 const passport = require('passport');
-const setupErrorHandler = require('./errors/setup-error.handler');
-require('./middlewares/jwt.strategy');
-const logger = require('./utils/logger'); // Logger
+const setupErrorHandler = require('./src/errors/setup-error.handler');
+require('./src/middlewares/jwt.strategy');
+const logger = require('./src/utils/logger'); // Logger
 
 // Controllers
-const authController = require('./users/users.auth.controller');
-const usersController = require('./users/users.controller');
-const challengesController = require('./challenges/challenges.controller');
-const battlesController = require('./battles/battles.controller');
-const teamsController = require('./teams/teams.controller');
-const errorHandler = require('./errors/http-error.handler');
+const authController = require('./src/users/users.auth.controller');
+const usersController = require('./src/users/users.controller');
+const challengesController = require('./src/challenges/challenges.controller');
+const battlesController = require('./src/battles/battles.controller');
+const teamsController = require('./src/teams/teams.controller');
+const errorHandler = require('./src/errors/http-error.handler');
 
 app.use(express.json());
 app.use(bodyParser.json());
@@ -64,10 +64,8 @@ const main = async () => {
     logger.info('Trying to connect to databases.');
 
     // MongoDB connection
-    mongoose.set('strictQuery', true); // idk why to remove DeprecationWarning
-    await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 1000 // time out after 1s for the connection
-    });
+    mongoose.set('strictQuery', true);
+    mongoose.connect(process.env.MONGO_URI);
     logger.info('Connected to mongoDB');
 
     // MariaDB connection

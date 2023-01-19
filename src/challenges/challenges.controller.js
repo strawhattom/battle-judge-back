@@ -4,7 +4,7 @@ const multer = require('multer');
 const logger = require('../utils/logger');
 require('dotenv/config');
 
-const FILE_SIZE_LIMIT = process.env.UPLOAD_SIZE_LIMIT;
+const FILE_SIZE_LIMIT = 10000000; // file size limit 10mb
 
 const multerFilter = (req, file, done) => {
   // TO-DO
