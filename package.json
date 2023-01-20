@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest --detectOpenHandles --passWithNoTests",
     "start": "node index.js",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "check:format": "prettier --check \"src/**/*.js\""
   },
   "author": "",
   "license": "ISC",

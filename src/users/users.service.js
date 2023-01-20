@@ -50,7 +50,8 @@ async function findAllParticipants() {
   return await User.findAll({
     where: {
       role: 'participant'
-    }
+    },
+    attributes: ['id', 'username', 'mail', 'role', 'team']
   });
 }
 
@@ -58,7 +59,8 @@ async function findAllJudges() {
   return await User.findAll({
     where: {
       role: 'judge'
-    }
+    },
+    attributes: ['id', 'username', 'mail', 'role', 'team']
   });
 }
 
