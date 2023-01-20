@@ -4,7 +4,7 @@
 # You can adjust the behavior by modifying this file.
 # For more information, see:
 # https://github.com/github/super-linter
-name: Lint Code Base
+name: Lint and Prettier
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
   pull_request:
     branches: [ "main" ]
 jobs:
-  run-lint:
+  run-format-and-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -21,7 +21,7 @@ jobs:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
 
-      - name: Lint Code Base
+      - name: Lint check
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: false
@@ -32,3 +32,6 @@ jobs:
           JAVASCRIPT_DEFAULT_STYLE: prettier
           JAVASCRIPT_ES_CONFIG_FILE: .eslintrc.yml
           VALIDATE_JAVASCRIPT_ES: true
+      - name: Format check
+        run: npm run check:format
+        
