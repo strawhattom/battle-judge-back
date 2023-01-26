@@ -15,12 +15,6 @@ const Challenge = sequelize.define(
     },
     author_id: {
       type: DataTypes.INTEGER
-    },
-    succeeded: {
-      type: DataTypes.BOOLEAN
-    },
-    time: {
-      type: DataTypes.DATE
     }
   },
   {

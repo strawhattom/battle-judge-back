@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 
-// https://mongoosejs.com/docs/subdocs.html
-
 const fileSchema = mongoose.Schema({
   originalname: {
     required: true,

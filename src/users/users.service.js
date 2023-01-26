@@ -65,6 +65,7 @@ async function findAllJudges() {
 }
 
 async function update(user, properties) {
+  // to-do user can't update his team if he is in an active battle.
   if (!user.id) throw new UndefinedError();
   if (properties.role) delete properties.role;
   const tempUser = await findById(user.id);
