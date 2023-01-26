@@ -6,6 +6,12 @@ const saltRounds = 10; // REDACTED
 const User = sequelize.define(
   'users',
   {
+    id: {
+      type: DataTypes.INTEGER,
+      field: 'user_id',
+      primaryKey: true,
+      auto_increment: true
+    },
     role: {
       type: DataTypes.ENUM('admin', 'judge', 'participant'),
       defaultValue: 'participant',
@@ -35,7 +41,7 @@ const User = sequelize.define(
   },
   {
     timestamps: false,
-    freezeTableName: true,
+    tableName: 'User',
     hooks: {
       // Create one
       beforeCreate: (user) => {
