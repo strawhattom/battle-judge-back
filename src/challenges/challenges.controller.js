@@ -13,7 +13,43 @@ const multerFilter = (req, file, done) => {
 const upload = multer({ fileFilter: multerFilter });
 
 router
-  .route('/:id/ressources')
+  .route('/')
+  .get(async (req, res) => {
+    // retrieve all challenges
+  })
+  .post(async (req, res) => {
+    // create challenge
+  });
+
+router
+  .route('/:id')
+  .get(async (req, res) => {
+    // retrieve challenge {id}
+  })
+  .patch(async (req, res) => {
+    //  update challenge {id} (e.g. error correction)
+  })
+  .delete(async (req, res) => {
+    // delete challenge {id}
+  });
+
+router
+  .route('/:id/resources')
+  .get(async (req, res) => {
+    // retrieve resources of the challenge
+  })
+  .post(async (req, res) => {
+    // add a resource of the challenge
+  })
+  .put(async (req, res) => {
+    // update all resources of the challenge
+  })
+  .delete(async (req, res) => {
+    // delete all resources of the challenge
+  });
+
+router
+  .route('/:id/resources')
   .post(upload.single('file'), async (req, res) => {
     console.log('[POST] /upload');
     if (!req.file) return res.status(404).send({ message: 'file not found' });
@@ -26,7 +62,7 @@ router
     return res.status(400).send({ message: 'error' });
   })
   .get(async (req, res) => {
-    logger.info('retrieving ressources');
+    logger.info('retrieving resources');
     const file = await service.getAll();
     if (file)
       return res.status(200).send({ files: file, message: 'file available' });
