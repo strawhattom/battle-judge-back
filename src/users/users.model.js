@@ -35,6 +35,7 @@ const User = sequelize.define(
     },
     team: {
       type: DataTypes.INTEGER,
+      field: 'team_id',
       defaultValue: 1,
       allowNull: false
     }

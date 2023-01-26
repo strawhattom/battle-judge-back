@@ -29,7 +29,7 @@ const checkFileProperty = async (id, file) => {
 const findOne = async (id, db = 'mongo') => {
   switch (db) {
     case 'mongo': {
-      const mongoChallenge = await Challenge.findOne(id);
+      const mongoChallenge = await Challenge.findById(id);
       if (!mongoChallenge)
         throw new NotFoundError(`Challenge with mongodb ${id} not found`);
       return mongoChallenge;
@@ -48,11 +48,26 @@ const findOne = async (id, db = 'mongo') => {
   }
 };
 
-const createOne = async (challengeData) => {
-  if (!challengeData) throw new UndefinedError();
-  const challenge = new Challenge(challengeData);
+const createOne = async (authorId, challengeData) => {
+  if (!authorId || !challengeData) throw new UndefinedError();
+
+  const result = {};
+
+  // Mongo challence creation
+  const challenge = new Challenge({
+    author: authorId,
+    ...challengeData
+  });
   await challenge.save();
-  return await findOne(challenge.id, 'mongo');
+  result.mongo = await findOne(challenge.id, 'mongo');
+  // Maria challenge creation
+
+  const challengeMaria = await ChallengeTable.create({
+    author: authorId,
+    mongo_challenge_id: challenge.id
+  });
+  result.maria = challengeMaria;
+  return result;
 };
 
 const getAllChallenges = async () => {

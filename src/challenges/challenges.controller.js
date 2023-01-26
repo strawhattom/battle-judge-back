@@ -17,7 +17,16 @@ router
   .get(async (req, res) => {
     // retrieve all challenges
   })
-  .post(async (req, res) => {
+  .post(upload.single('file'), async (req, res, next) => {
+    try {
+      const challenge = await service.createOne(
+        req.user.id,
+        req.body.challenge
+      );
+      return res.status(200).send(challenge);
+    } catch (err) {
+      next(err);
+    }
     // create challenge
   });
 

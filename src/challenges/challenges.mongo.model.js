@@ -24,6 +24,10 @@ const fileSchema = mongoose.Schema({
 });
 
 const challengeSchema = mongoose.Schema({
+  author: {
+    required: true,
+    type: String
+  },
   title: {
     required: true,
     type: String

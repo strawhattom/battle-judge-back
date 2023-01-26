@@ -11,10 +11,11 @@ const Challenge = sequelize.define(
       auto_increment: true
     },
     mongo_challenge_id: {
-      type: DataTypes.STRING(16)
+      type: DataTypes.STRING(32)
     },
-    author_id: {
-      type: DataTypes.INTEGER
+    author: {
+      type: DataTypes.INTEGER,
+      field: 'author_id'
     }
   },
   {
