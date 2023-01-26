@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const logger = require('../utils/logger');
 
 const fileSchema = mongoose.Schema({
   originalname: {
@@ -26,7 +27,7 @@ const fileSchema = mongoose.Schema({
 const challengeSchema = mongoose.Schema({
   author: {
     required: true,
-    type: String
+    type: Number
   },
   title: {
     required: true,
@@ -46,6 +47,10 @@ const challengeSchema = mongoose.Schema({
   },
   resources: [fileSchema],
   hints: [String]
+});
+
+challengeSchema.post('findOneAndUpdate', (doc) => {
+  logger.info(`${doc._id} upated`);
 });
 
 const Challenge = mongoose.model('Challenge', challengeSchema);

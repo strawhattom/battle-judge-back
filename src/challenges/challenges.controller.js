@@ -14,8 +14,12 @@ const upload = multer({ fileFilter: multerFilter });
 
 router
   .route('/')
-  .get(async (req, res) => {
-    // retrieve all challenges
+  .get(async (req, res, next) => {
+    try {
+      return res.status(200).send(await service.getAllChallenges());
+    } catch (err) {
+      next(err);
+    }
   })
   .post(upload.single('file'), async (req, res, next) => {
     try {
@@ -27,16 +31,27 @@ router
     } catch (err) {
       next(err);
     }
-    // create challenge
   });
 
 router
   .route('/:id')
-  .get(async (req, res) => {
-    // retrieve challenge {id}
+  .get(async (req, res, next) => {
+    try {
+      return res
+        .status(200)
+        .send(await service.findBySequenceId(req.params.id));
+    } catch (err) {
+      next(err);
+    }
   })
-  .patch(async (req, res) => {
-    //  update challenge {id} (e.g. error correction)
+  .patch(async (req, res, next) => {
+    try {
+      return res
+        .status(200)
+        .send(await service.update(req.params.id, req.body));
+    } catch (err) {
+      next(err);
+    }
   })
   .delete(async (req, res) => {
     // delete challenge {id}
