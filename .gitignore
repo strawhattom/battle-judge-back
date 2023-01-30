@@ -421,3 +421,9 @@ $RECYCLE.BIN/
 
 # custom
 db/data/*
+
+# test coverage
+lcov-report/
+clover.xml
+coverage-final.json
+lcov.info

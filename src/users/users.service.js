@@ -5,7 +5,10 @@ const UndefinedError = require('../errors/UndefinedError');
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
 const DuplicateError = require('../errors/DuplicateError');
+const WrongFormatError = require('../errors/WrongFormatError');
 require('dotenv').config();
+
+const FILTERED_FIELDS = ['id', 'username', 'mail', 'role', 'team'];
 
 async function register(username, password, mail) {
   try {
@@ -18,15 +21,23 @@ async function register(username, password, mail) {
     });
     return user;
   } catch (err) {
-    if (err.name === 'SequelizeUniqueConstraintError')
-      throw new DuplicateError(`Username ${username} already taken`);
-    throw err;
+    switch (err.name) {
+      case 'SequelizeUniqueConstraintError': {
+        throw new DuplicateError(`Username ${username} already taken`);
+      }
+      case 'SequelizeValidationError': {
+        throw new WrongFormatError(`Email ${mail} is in an incorrect format`);
+      }
+      default: {
+        throw err;
+      }
+    }
   }
 }
 
 async function findAll() {
   return await User.findAll({
-    attributes: ['id', 'username', 'mail', 'role', 'team']
+    attributes: FILTERED_FIELDS
   });
 }
 
@@ -51,7 +62,7 @@ async function findAllParticipants() {
     where: {
       role: 'participant'
     },
-    attributes: ['id', 'username', 'mail', 'role', 'team']
+    attributes: FILTERED_FIELDS
   });
 }
 
@@ -60,7 +71,7 @@ async function findAllJudges() {
     where: {
       role: 'judge'
     },
-    attributes: ['id', 'username', 'mail', 'role', 'team']
+    attributes: FILTERED_FIELDS
   });
 }
 

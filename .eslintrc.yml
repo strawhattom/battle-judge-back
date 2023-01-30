@@ -7,7 +7,7 @@ extends: standard
 overrides: []
 parserOptions:
   ecmaVersion: latest
-ignorePatterns: ['mongo-init.js']
+ignorePatterns: ['mongo-init.js', '**.**.spec.js']
 rules:
   space-before-function-paren:
     ['error', { anonymous: 'always', named: 'never', asyncArrow: 'always' }]
