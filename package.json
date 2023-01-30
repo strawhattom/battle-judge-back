@@ -7,8 +7,9 @@
     "test": "jest --detectOpenHandles --passWithNoTests",
     "start": "node index.js",
     "prepare": "husky install",
-    "check:format": "./node_modules/.bin/prettier --check src/**/*.js",
-    "check:lint": "./node_modules/.bin/eslint ./src/**/*.js --quiet "
+    "check:format": ".\\node_modules\\.bin\\prettier --check src\\**\\*.js",
+    "check:lint": ".\\node_modules\\.bin\\eslint .\\src\\**\\*.js --quiet ",
+    "format": ".\\node_modules\\.bin\\prettier --write src\\**\\*.js"
   },
   "author": "",
   "license": "ISC",

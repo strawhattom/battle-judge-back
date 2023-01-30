@@ -4,7 +4,8 @@ const errorsName = [
   'NotFoundError',
   'ValidationError',
   'DuplicateError',
-  'UndefinedError'
+  'UndefinedError',
+  'WrongFormatError'
 ];
 
 const httpErrorHandler = (err, req, res, next) => {
