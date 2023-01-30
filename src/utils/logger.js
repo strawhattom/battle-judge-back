@@ -2,6 +2,8 @@ const { createLogger, format, transports } = require('winston');
 const { combine, splat, timestamp, printf } = format;
 require('dotenv/config');
 
+const LOG_FILENAME = 'battle-judge.log';
+
 const outFormat = printf(({ level, message, timestamp, ...metadata }) => {
   let msg = `${timestamp} [${level}] : ${message} `;
   if (metadata && metadata.length > 0) msg += JSON.stringify(metadata);
@@ -30,7 +32,7 @@ const logger = createLogger({
   ),
   transports: [
     new transports.Console({ level: 'info' }),
-    new transports.File({ filename: process.env.LOG_FILE, level: 'debug' })
+    new transports.File({ filename: LOG_FILENAME, level: 'debug' })
   ]
 });
 
