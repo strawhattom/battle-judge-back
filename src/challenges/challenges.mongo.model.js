@@ -45,6 +45,10 @@ const challengeSchema = mongoose.Schema({
     required: true,
     type: Number
   },
+  active: {
+    default: false,
+    type: Boolean
+  },
   resources: [fileSchema],
   hints: [String]
 });

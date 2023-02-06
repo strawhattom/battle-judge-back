@@ -30,7 +30,7 @@ const checkFileProperty = async (id, file) => {
 const findOne = async (id, db = 'mongo') => {
   switch (db) {
     case 'mongo': {
-      const mongoChallenge = await Challenge.findById(id);
+      const mongoChallenge = await Challenge.findById(id).select('-__v');
       if (!mongoChallenge)
         throw new NotFoundError(`Challenge with mongodb ${id} not found`);
       return mongoChallenge;
@@ -73,7 +73,7 @@ const createOne = async (authorId, challengeData) => {
 
 const getAllChallenges = async () => {
   const rawChallenges = await Promise.all([
-    Challenge.find(),
+    Challenge.find().select('-__v'),
     ChallengeTable.findAll({})
   ]);
   const mongoResult = rawChallenges[0];
@@ -89,6 +89,7 @@ const getAllChallenges = async () => {
     });
     return { id: mariaId.id, ...mongoChallenge._doc };
   });
+
   return challenges;
 };
 

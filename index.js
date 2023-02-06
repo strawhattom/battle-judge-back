@@ -65,7 +65,7 @@ const main = async () => {
 
     // MongoDB connection
     mongoose.set('strictQuery', true);
-    mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI);
     logger.info('Connected to mongoDB');
 
     // MariaDB connection
