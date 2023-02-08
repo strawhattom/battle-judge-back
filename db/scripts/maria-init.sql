@@ -33,7 +33,7 @@ CREATE TABLE User (user_id INT AUTO_INCREMENT PRIMARY KEY,
 			    CONSTRAINT fk_user FOREIGN KEY (team_id) REFERENCES Team(team_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE TABLE Challenge (challenge_id INT AUTO_INCREMENT PRIMARY KEY,
-			    mongo_challenge_id VARCHAR(16) NOT NULL UNIQUE,
+			    mongo_challenge_id VARCHAR(24) NOT NULL UNIQUE,
 			    author_id INT NOT NULL,
 			    CONSTRAINT fk_challenge FOREIGN KEY (author_id) REFERENCES User(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -73,10 +73,3 @@ INSERT INTO User VALUES (5,'participant','naruto','naruto@sopra.fr','$2a$10$0lwG
 INSERT INTO User VALUES (6,'participant','johnsnow','johnsnow@sopra.fr','$2a$10$ZNpQFlZBmXO4/RvYC67Fw.0b11vWBgG6ZyqgmA9u/QSdz4FhOjIy6',2);
 INSERT INTO User VALUES (7,'participant','minion','minion@sopra.fr','$2a$10$PpAdIvY9zFGbMctzKOdogOQLld8zfc7PCRmojxP6cXpbqEl4.D9a.',2);
 INSERT INTO User VALUES (8,'participant','natsu','natsu@sopra.fr','$2a$10$rvPxXyNeemiXiRv6gWioA.wOzgM0QQWPoBlC/slXK93gXjd/cQASW',2);
-
-INSERT INTO Challenge VALUES (1,'challengeA',1);
-INSERT INTO Challenge VALUES (2,'challengeB',1);
-INSERT INTO Challenge VALUES (3,'challengeC',1);
-INSERT INTO Challenge VALUES (4,'challengeD',1);
-INSERT INTO Challenge VALUES (5,'challengeE',1);
-INSERT INTO Challenge VALUES (6,'challengeF',1);

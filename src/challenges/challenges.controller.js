@@ -53,8 +53,12 @@ router
       next(err);
     }
   })
-  .delete(async (req, res) => {
-    // delete challenge {id}
+  .delete(async (req, res, next) => {
+    try {
+      return res.status(200).send(await service.deleteOne(req.params.id));
+    } catch (err) {
+      next(err);
+    }
   });
 
 router
@@ -62,7 +66,7 @@ router
   .get(async (req, res) => {
     // retrieve resources of the challenge
   })
-  .post(async (req, res) => {
+  .post(upload.single('file'), async (req, res) => {
     // add a resource of the challenge
   })
   .put(async (req, res) => {
