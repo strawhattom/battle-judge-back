@@ -23,10 +23,7 @@ router
   })
   .post(upload.single('file'), async (req, res, next) => {
     try {
-      const challenge = await service.createOne(
-        req.user.id,
-        req.body.challenge
-      );
+      const challenge = await service.createOne(req.user.id, req.body);
       return res.status(200).send(challenge);
     } catch (err) {
       next(err);

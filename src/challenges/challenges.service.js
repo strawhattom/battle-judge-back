@@ -69,7 +69,7 @@ const createOne = async (authorId, challengeData) => {
   });
   if (!challengeMaria) throw new NotFoundError('Challenge not found');
   result.maria = challengeMaria;
-  return result;
+  return mergeChallenge(result.maria.dataValues, result.mongo._doc);
 };
 
 const getAllChallenges = async () => {
@@ -122,11 +122,6 @@ const deleteOne = async (id) => {
   console.log('destroying mariachallenge ', id);
   const mariaChallenge = await findOne(id, 'maria');
   await mariaChallenge.destroy();
-
-  console.log(
-    'destroying mongoChallenge ',
-    mariaChallenge.dataValues.mongo_challenge_id
-  );
   const mongoChallenge = await findOne(
     mariaChallenge.dataValues.mongo_challenge_id
   );
