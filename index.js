@@ -23,9 +23,9 @@ const battlesController = require('./src/battles/battles.controller');
 const teamsController = require('./src/teams/teams.controller');
 const errorHandler = require('./src/errors/http-error.handler');
 
+app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(cors());
 
 app.get('/', (req, res) => {
   return res.status(200).send({
