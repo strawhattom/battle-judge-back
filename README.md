@@ -2,14 +2,10 @@
 
 ## Dependencies
 
-<<<<<<< HEAD
 ### Global dependency
 
 prettier => `npm install --global prettier` \
 project-related => `npm install`
-=======
-`npm install`
->>>>>>> c01ab02 (Update README.md)
 
 ## .env
 
