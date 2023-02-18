@@ -5,6 +5,10 @@ const sequelize = require('./src/utils/db-connection');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(server);
 const port = process.env.PORT || 3000;
 const passport = require('passport');
 const setupErrorHandler = require('./src/errors/setup-error.handler');
@@ -19,9 +23,9 @@ const battlesController = require('./src/battles/battles.controller');
 const teamsController = require('./src/teams/teams.controller');
 const errorHandler = require('./src/errors/http-error.handler');
 
+app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(cors());
 
 app.get('/', (req, res) => {
   return res.status(200).send({
@@ -65,7 +69,7 @@ const main = async () => {
 
     // MongoDB connection
     mongoose.set('strictQuery', true);
-    mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI);
     logger.info('Connected to mongoDB');
 
     // MariaDB connection

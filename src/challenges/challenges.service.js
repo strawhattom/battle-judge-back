@@ -30,7 +30,7 @@ const checkFileProperty = async (id, file) => {
 const findOne = async (id, db = 'mongo') => {
   switch (db) {
     case 'mongo': {
-      const mongoChallenge = await Challenge.findById(id);
+      const mongoChallenge = await Challenge.findById(id).select('-__v');
       if (!mongoChallenge)
         throw new NotFoundError(`Challenge with mongodb ${id} not found`);
       return mongoChallenge;
@@ -67,13 +67,14 @@ const createOne = async (authorId, challengeData) => {
     author: authorId,
     mongo_challenge_id: challenge.id
   });
+  if (!challengeMaria) throw new NotFoundError('Challenge not found');
   result.maria = challengeMaria;
-  return result;
+  return mergeChallenge(result.maria.dataValues, result.mongo._doc);
 };
 
 const getAllChallenges = async () => {
   const rawChallenges = await Promise.all([
-    Challenge.find(),
+    Challenge.find().select('-__v'),
     ChallengeTable.findAll({})
   ]);
   const mongoResult = rawChallenges[0];
@@ -89,6 +90,7 @@ const getAllChallenges = async () => {
     });
     return { id: mariaId.id, ...mongoChallenge._doc };
   });
+
   return challenges;
 };
 
@@ -114,10 +116,47 @@ const update = async (id, data) => {
   return await findBySequenceId(id);
 };
 
+// id is the sequence id (mariadb one)
+const deleteOne = async (id) => {
+  if (!id) throw new UndefinedError();
+  console.log('destroying mariachallenge ', id);
+  const mariaChallenge = await findOne(id, 'maria');
+  await mariaChallenge.destroy();
+  const mongoChallenge = await findOne(
+    mariaChallenge.dataValues.mongo_challenge_id
+  );
+  await mongoChallenge.remove();
+
+  return mergeChallenge(mariaChallenge.dataValues, mongoChallenge._doc);
+};
+
+const getResources = async (id) => {
+  if (!id) throw new UndefinedError();
+  const challenge = await findBySequenceId(id);
+  return challenge.resources;
+};
+
+const createFile = async (id, file) => {
+  if (!id) throw new UndefinedError();
+  if (!file) throw new UndefinedError();
+  const challenge = await findBySequenceId(id);
+  challenge.resources.push(file);
+  await challenge.save();
+  return challenge.resources;
+};
+
+const mergeChallenge = async (maria, mongo) => {
+  if (maria.mongo_challenge_id) delete maria.mongo_challenge_id;
+  return { ...maria, ...mongo };
+};
+
 module.exports = {
   checkFileProperty,
   createOne,
   getAllChallenges,
   findBySequenceId,
-  update
+  update,
+  deleteOne,
+  getResources,
+  createFile
 };

@@ -45,8 +45,22 @@ const challengeSchema = mongoose.Schema({
     required: true,
     type: Number
   },
-  resources: [fileSchema],
-  hints: [String]
+  active: {
+    default: false,
+    type: Boolean
+  },
+  flag: {
+    required: true,
+    type: String
+  },
+  resources: {
+    required: false,
+    type: [fileSchema]
+  },
+  hints: {
+    required: false,
+    type: [String]
+  }
 });
 
 challengeSchema.post('findOneAndUpdate', (doc) => {

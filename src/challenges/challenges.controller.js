@@ -5,6 +5,7 @@ const logger = require('../utils/logger');
 require('dotenv/config');
 
 const FILE_SIZE_LIMIT = 10000000; // file size limit 10mb
+const MAX_ARRAY_SIZE = 3; // max number of files in array
 
 const multerFilter = (req, file, done) => {
   // TO-DO
@@ -21,12 +22,13 @@ router
       next(err);
     }
   })
-  .post(upload.single('file'), async (req, res, next) => {
+  .post(upload.array('resources', MAX_ARRAY_SIZE), async (req, res, next) => {
+    console.log(req.body, req.files);
     try {
-      const challenge = await service.createOne(
-        req.user.id,
-        req.body.challenge
-      );
+      const challenge = await service.createOne(req.user.id, {
+        ...req.body,
+        resources: req.files
+      });
       return res.status(200).send(challenge);
     } catch (err) {
       next(err);
@@ -53,8 +55,12 @@ router
       next(err);
     }
   })
-  .delete(async (req, res) => {
-    // delete challenge {id}
+  .delete(async (req, res, next) => {
+    try {
+      return res.status(200).send(await service.deleteOne(req.params.id));
+    } catch (err) {
+      next(err);
+    }
   });
 
 router
@@ -62,7 +68,7 @@ router
   .get(async (req, res) => {
     // retrieve resources of the challenge
   })
-  .post(async (req, res) => {
+  .post(upload.single('file'), async (req, res) => {
     // add a resource of the challenge
   })
   .put(async (req, res) => {
@@ -74,16 +80,17 @@ router
 
 router
   .route('/:id/resources')
-  .post(upload.single('file'), async (req, res) => {
+  .post(upload.single('resources'), async (req, res) => {
     console.log('[POST] /upload');
-    if (!req.file) return res.status(404).send({ message: 'file not found' });
-    if (req.file.size > FILE_SIZE_LIMIT)
-      return res.status(413).send({ message: 'file too large' });
-    if (!req.body) return res.status(400).send({ message: "can't upload" });
+    console.log(req.resources);
+    // if (!req.file) return res.status(404).send({ message: 'file not found' });
+    // if (req.file.size > FILE_SIZE_LIMIT)
+    //   return res.status(413).send({ message: 'file too large' });
+    // if (!req.body) return res.status(400).send({ message: "can't upload" });
 
-    const file = await service.save(req.file);
-    if (file) return res.status(200).send({ file, message: 'uploaded' });
-    return res.status(400).send({ message: 'error' });
+    // const file = await service.save(req.file);
+    // if (file) return res.status(200).send({ file, message: 'uploaded' });
+    // return res.status(400).send({ message: 'error' });
   })
   .get(async (req, res) => {
     logger.info('retrieving resources');
