@@ -95,7 +95,7 @@ const getAllChallenges = async () => {
 };
 
 const findBySequenceId = async (id, mongoObject = false) => {
-  if (!id) throw new UndefinedError();
+  if (!id) throw new UndefinedError('Challenge id is not defined');
   const maria = await findOne(id, 'maria');
   if (!maria) throw new NotFoundError('Challenge not found');
   try {
@@ -107,18 +107,24 @@ const findBySequenceId = async (id, mongoObject = false) => {
   }
 };
 
+// id is the sequence id (mariadb one)
 const update = async (id, data) => {
-  if (!id) throw new UndefinedError();
+  if (!id) throw new UndefinedError('No id provided');
   if (!data) throw new WrongFormatError('No new data');
   // Can't change author of the challenge
   if (data.author) delete data.author;
-  await Challenge.findOneAndUpdate({ id }, data);
+  const mariaChallenge = await findOne(id, 'maria');
+  console.log(mariaChallenge.dataValues.mongo_challenge_id);
+  await Challenge.findOneAndUpdate(
+    { _id: mariaChallenge.dataValues.mongo_challenge_id },
+    data
+  );
   return await findBySequenceId(id);
 };
 
 // id is the sequence id (mariadb one)
 const deleteOne = async (id) => {
-  if (!id) throw new UndefinedError();
+  if (!id) throw new UndefinedError('No id provided');
   console.log('destroying mariachallenge ', id);
   const mariaChallenge = await findOne(id, 'maria');
   await mariaChallenge.destroy();
@@ -131,17 +137,8 @@ const deleteOne = async (id) => {
 };
 
 const getResources = async (id) => {
-  if (!id) throw new UndefinedError();
+  if (!id) throw new UndefinedError("No resource's id provided");
   const challenge = await findBySequenceId(id);
-  return challenge.resources;
-};
-
-const createFile = async (id, file) => {
-  if (!id) throw new UndefinedError();
-  if (!file) throw new UndefinedError();
-  const challenge = await findBySequenceId(id);
-  challenge.resources.push(file);
-  await challenge.save();
   return challenge.resources;
 };
 
@@ -157,6 +154,5 @@ module.exports = {
   findBySequenceId,
   update,
   deleteOne,
-  getResources,
-  createFile
+  getResources
 };

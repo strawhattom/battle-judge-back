@@ -27,7 +27,7 @@ const User = sequelize.define(
       type: DataTypes.STRING(32),
       allowNull: false,
       validate: {
-        is: /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+        isEmail: true
       }
     },
     password: {
@@ -37,8 +37,7 @@ const User = sequelize.define(
     team: {
       type: DataTypes.INTEGER,
       field: 'team_id',
-      defaultValue: null,
-      allowNull: false
+      defaultValue: null
     }
   },
   {
