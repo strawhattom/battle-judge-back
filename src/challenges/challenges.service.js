@@ -80,6 +80,8 @@ const getAllChallenges = async () => {
   const mongoResult = rawChallenges[0];
   const mariaResult = rawChallenges[1];
 
+  if (mongoResult.length === 0 || mariaResult.length === 0) return [];
+
   // Merge results from each databases
   const challenges = mongoResult.map((mongoChallenge) => {
     const mariaId = mariaResult.find((mariaChallenge) => {
