@@ -3,6 +3,7 @@ const sequelize = require('../utils/db-connection');
 const bcrypt = require('bcrypt');
 const logger = require('../utils/logger');
 const saltRounds = 10; // REDACTED
+
 const Team = require('../teams/teams.model');
 
 const User = sequelize.define(
@@ -10,7 +11,6 @@ const User = sequelize.define(
   {
     id: {
       type: DataTypes.INTEGER,
-      field: 'user_id',
       primaryKey: true,
       auto_increment: true
     },
@@ -35,10 +35,13 @@ const User = sequelize.define(
       type: DataTypes.STRING(128),
       allowNull: false
     },
-    team: {
+    teamId: {
       type: DataTypes.INTEGER,
-      field: 'team_id',
-      defaultValue: null
+      defaultValue: null,
+      references: {
+        model: Team,
+        key: 'id'
+      }
     }
   },
   {
@@ -66,6 +69,7 @@ const User = sequelize.define(
   }
 );
 
-// User.hasOne(Team);
+Team.hasMany(User);
+User.belongsTo(Team, { foreignKey: 'teamId' });
 
 module.exports = User;
