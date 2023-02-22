@@ -4,12 +4,13 @@ const bcrypt = require('bcrypt');
 const logger = require('../utils/logger');
 const saltRounds = 10; // REDACTED
 
+const Team = require('../teams/teams.model');
+
 const User = sequelize.define(
   'users',
   {
     id: {
       type: DataTypes.INTEGER,
-      field: 'user_id',
       primaryKey: true,
       auto_increment: true
     },
@@ -27,18 +28,20 @@ const User = sequelize.define(
       type: DataTypes.STRING(32),
       allowNull: false,
       validate: {
-        is: /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+        isEmail: true
       }
     },
     password: {
       type: DataTypes.STRING(128),
       allowNull: false
     },
-    team: {
+    teamId: {
       type: DataTypes.INTEGER,
-      field: 'team_id',
       defaultValue: null,
-      allowNull: false
+      references: {
+        model: Team,
+        key: 'id'
+      }
     }
   },
   {
@@ -65,5 +68,8 @@ const User = sequelize.define(
     }
   }
 );
+
+Team.hasMany(User);
+User.belongsTo(Team, { foreignKey: 'teamId' });
 
 module.exports = User;

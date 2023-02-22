@@ -56,15 +56,11 @@ const challengeSchema = mongoose.Schema({
   resources: {
     required: false,
     type: [fileSchema]
-  },
-  hints: {
-    required: false,
-    type: [String]
   }
 });
 
 challengeSchema.post('findOneAndUpdate', (doc) => {
-  logger.info(`${doc._id} upated`);
+  logger.info(`${doc._id} updated`);
 });
 
 const Challenge = mongoose.model('Challenge', challengeSchema);

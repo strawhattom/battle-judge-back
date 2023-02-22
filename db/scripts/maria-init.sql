@@ -1,3 +1,4 @@
+-- Active: 1677072536892@@127.0.0.1@3306@battle_judge
 DROP SCHEMA IF EXISTS battle_judge;
 CREATE SCHEMA battle_judge;
 USE battle_judge;

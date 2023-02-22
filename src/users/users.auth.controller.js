@@ -17,8 +17,8 @@ router.post(
 
 router.post('/register', async (req, res, next) => {
   try {
-    const { username, password, mail } = req.body;
-    const user = await service.register(username, password, mail);
+    const { username, password, email } = req.body;
+    const user = await service.register(username, password, email);
     return res.status(201).send(user);
   } catch (err) {
     next(err);
