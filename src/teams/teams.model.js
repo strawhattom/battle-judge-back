@@ -8,7 +8,6 @@ const Team = sequelize.define(
   {
     id: {
       type: DataTypes.INTEGER,
-      field: 'team_id',
       primaryKey: true,
       autoIncrement: true
     },
@@ -18,7 +17,6 @@ const Team = sequelize.define(
       allowNull: false
     }
   },
-
   {
     timestamps: false,
     tableName: 'Team',
