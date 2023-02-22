@@ -1,41 +1,42 @@
+-- Active: 1677072536892@@127.0.0.1@3306@battle_judge
 DROP SCHEMA IF EXISTS battle_judge;
 CREATE SCHEMA battle_judge;
 USE battle_judge;
 
 -- Tables Creation
 
-CREATE TABLE Battle (battle_id INT AUTO_INCREMENT KEY,
+CREATE TABLE Battle (id INT AUTO_INCREMENT KEY,
 			    start_date DATE default NULL,
 			    active BOOLEAN default FALSE
 );
-CREATE TABLE Team (team_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE Team (id INT AUTO_INCREMENT PRIMARY KEY,
 			    name VARCHAR(32) NOT NULL UNIQUE
 );
 CREATE TABLE Leaderboard (leaderboard_id INT AUTO_INCREMENT PRIMARY KEY,
 			    team_id INT(11) NOT NULL,
 			    battle_id INT(11) NOT NULL,
 			    total_points INT(11) default 0,
-			    CONSTRAINT fk_leaderboard1 FOREIGN KEY (team_id) REFERENCES Team(team_id) ON UPDATE CASCADE,
-			    CONSTRAINT fk_leaderboard2 FOREIGN KEY (battle_id) REFERENCES Battle(battle_id) ON UPDATE CASCADE
+			    CONSTRAINT fk_leaderboard1 FOREIGN KEY (team_id) REFERENCES Team(id) ON UPDATE CASCADE,
+			    CONSTRAINT fk_leaderboard2 FOREIGN KEY (battle_id) REFERENCES Battle(id) ON UPDATE CASCADE
 );
 CREATE TABLE Participate (participate_id INT AUTO_INCREMENT PRIMARY KEY,
 			    team_id INT NOT NULL,
 			    battle_id INT NOT NULL,
-			    CONSTRAINT fk_participate1 FOREIGN KEY (team_id) REFERENCES Team(team_id) ON DELETE CASCADE ON UPDATE CASCADE,
-			    CONSTRAINT fk_participate2 FOREIGN KEY (battle_id) REFERENCES Battle(battle_id) ON DELETE CASCADE ON UPDATE CASCADE
+			    CONSTRAINT fk_participate1 FOREIGN KEY (team_id) REFERENCES Team(id) ON DELETE CASCADE ON UPDATE CASCADE,
+			    CONSTRAINT fk_participate2 FOREIGN KEY (battle_id) REFERENCES Battle(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
-CREATE TABLE User (user_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE User (id INT AUTO_INCREMENT PRIMARY KEY,
 			    role ENUM('admin','judge', 'participant'),
 			    username VARCHAR(32) NOT NULL UNIQUE,
 			    mail VARCHAR(32) NOT NULL,
 			    password VARCHAR(128) NOT NULL,
-			    team_id INT,
-			    CONSTRAINT fk_user FOREIGN KEY (team_id) REFERENCES Team(team_id) ON DELETE CASCADE ON UPDATE CASCADE
+			    teamId INT,
+			    CONSTRAINT fk_user FOREIGN KEY (teamId) REFERENCES Team(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
-CREATE TABLE Challenge (challenge_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE Challenge (id INT AUTO_INCREMENT PRIMARY KEY,
 			    mongo_challenge_id VARCHAR(24) NOT NULL UNIQUE,
 			    author_id INT NOT NULL,
-			    CONSTRAINT fk_challenge FOREIGN KEY (author_id) REFERENCES User(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+			    CONSTRAINT fk_challenge FOREIGN KEY (author_id) REFERENCES User(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Values Insertion
