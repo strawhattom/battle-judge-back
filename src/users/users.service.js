@@ -10,7 +10,7 @@ const WrongFormatError = require('../errors/WrongFormatError');
 const { col } = require('sequelize');
 require('dotenv').config();
 
-const FILTERED_FIELDS = ['id', 'username', 'mail', 'role', 'team'];
+const FILTERED_FIELDS = ['id', 'username', 'mail', 'role'];
 
 async function register(username, password, mail) {
   try {
@@ -43,10 +43,7 @@ async function findAll() {
   return await User.findAll({
     attributes: FILTERED_FIELDS,
     include: {
-      model: Team,
-      on: {
-        id: col('Team.id')
-      }
+      model: Team
     }
   });
 }
