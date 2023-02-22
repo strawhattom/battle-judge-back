@@ -60,7 +60,6 @@ const challengeSchema = mongoose.Schema({
 });
 
 challengeSchema.post('findOneAndUpdate', (doc) => {
-  console.log(doc);
   logger.info(`${doc._id} updated`);
 });
 

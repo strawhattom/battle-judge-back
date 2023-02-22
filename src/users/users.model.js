@@ -3,6 +3,7 @@ const sequelize = require('../utils/db-connection');
 const bcrypt = require('bcrypt');
 const logger = require('../utils/logger');
 const saltRounds = 10; // REDACTED
+const Team = require('../teams/teams.model');
 
 const User = sequelize.define(
   'users',
@@ -64,5 +65,7 @@ const User = sequelize.define(
     }
   }
 );
+
+// User.hasOne(Team);
 
 module.exports = User;

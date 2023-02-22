@@ -1,4 +1,5 @@
 const User = require('./users.model');
+const Team = require('../teams/teams.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const UndefinedError = require('../errors/UndefinedError');
@@ -6,6 +7,7 @@ const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
 const DuplicateError = require('../errors/DuplicateError');
 const WrongFormatError = require('../errors/WrongFormatError');
+const { col } = require('sequelize');
 require('dotenv').config();
 
 const FILTERED_FIELDS = ['id', 'username', 'mail', 'role', 'team'];
@@ -39,7 +41,13 @@ async function register(username, password, mail) {
 
 async function findAll() {
   return await User.findAll({
-    attributes: FILTERED_FIELDS
+    attributes: FILTERED_FIELDS,
+    include: {
+      model: Team,
+      on: {
+        id: col('Team.id')
+      }
+    }
   });
 }
 

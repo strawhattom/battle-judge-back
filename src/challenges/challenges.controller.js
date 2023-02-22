@@ -46,11 +46,16 @@ router
       next(err);
     }
   })
-  .patch(async (req, res, next) => {
+  .put(upload.array('resources', MAX_ARRAY_SIZE), async (req, res, next) => {
     try {
       return res
         .status(200)
-        .send(await service.update(req.params.id, req.body));
+        .send(
+          await service.update(req.params.id, {
+            ...req.body,
+            resources: req.files
+          })
+        );
     } catch (err) {
       next(err);
     }
