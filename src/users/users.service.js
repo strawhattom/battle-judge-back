@@ -7,7 +7,6 @@ const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
 const DuplicateError = require('../errors/DuplicateError');
 const WrongFormatError = require('../errors/WrongFormatError');
-const { col } = require('sequelize');
 require('dotenv').config();
 
 const FILTERED_FIELDS = ['id', 'username', 'mail', 'role'];
@@ -86,6 +85,14 @@ async function update(user, properties) {
   // to-do user can't update his team if he is in an active battle.
   if (!user.id) throw new UndefinedError('User id is undefined !');
   if (properties.role) delete properties.role;
+  if (properties.username) delete properties.username;
+  const tempUser = await findById(user.id);
+  await tempUser.update(properties);
+  return await tempUser.save(); // updated user
+}
+
+async function updateAsAdmin(user, properties) {
+  if (!user.id) throw new UndefinedError('User id is undefined !');
   const tempUser = await findById(user.id);
   await tempUser.update(properties);
   return await tempUser.save(); // updated user
@@ -122,5 +129,6 @@ module.exports = {
   verify,
   generateJWT,
   update,
+  updateAsAdmin,
   deleteUser
 };

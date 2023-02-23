@@ -16,6 +16,15 @@ const Team = sequelize.define(
       unique: true,
       allowNull: false
     }
+    // owner: {
+    //   type: DataTypes.INTEGER,
+    //   field: 'ownerId',
+    //   allowNull: false,
+    //   references: {
+    //     model: User,
+    //     key: 'id'
+    //   }
+    // }
   },
   {
     timestamps: false,

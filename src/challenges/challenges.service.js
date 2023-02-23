@@ -82,17 +82,17 @@ const getAllChallenges = async () => {
 
   if (mongoResult.length === 0 || mariaResult.length === 0) return [];
 
-  // Merge results from each databases
-  const challenges = mongoResult.map((mongoChallenge) => {
+  // Fusionne les tableaux, ne prends pas en compte les challenges qui ne sont pas dans les deux bases de données.
+  const challenges = mongoResult.reduce((challenges, mongoChallenge) => {
     const mariaId = mariaResult.find((mariaChallenge) => {
       return (
         mariaChallenge.dataValues.mongo_challenge_id ===
         mongoChallenge._id.toString()
       );
     });
-    return { id: mariaId.id, ...mongoChallenge._doc };
-  });
-
+    if (mariaId) challenges.push({ id: mariaId.id, ...mongoChallenge._doc });
+    return challenges;
+  }, []);
   return challenges;
 };
 

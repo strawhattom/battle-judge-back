@@ -3,7 +3,9 @@ const service = require('./teams.service');
 
 router
   .route('/')
-  .get(async (req, res) => {})
+  .get(async (req, res) => {
+    return res.status(200).send(await service.findAll());
+  })
   .post(async (req, res) => {});
 
 router
