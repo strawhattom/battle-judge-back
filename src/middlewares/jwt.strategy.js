@@ -14,11 +14,11 @@ try {
       async (token, done) => {
         const user = await service.findByName(token.sub);
         if (!user) return done(null, false);
-        const { id, username, mail, team, role } = user.dataValues;
+        const { id, username, email, team, role } = user.dataValues;
         return done(null, {
           id,
           username,
-          mail,
+          email,
           team,
           role
         });

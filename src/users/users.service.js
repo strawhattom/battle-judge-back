@@ -9,17 +9,17 @@ const DuplicateError = require('../errors/DuplicateError');
 const WrongFormatError = require('../errors/WrongFormatError');
 require('dotenv').config();
 
-const FILTERED_FIELDS = ['id', 'username', 'mail', 'role'];
+const FILTERED_FIELDS = ['id', 'username', 'email', 'role'];
 
-async function register(username, password, mail) {
+async function register(username, password, email) {
   try {
     if (!username) throw new UndefinedError('Username is undefined !');
     if (!password) throw new UndefinedError('Password is undefined !');
-    if (!mail) throw new UndefinedError('Email is undefined !');
+    if (!email) throw new UndefinedError('Email is undefined !');
     const user = await User.create({
       username,
       password,
-      mail
+      email
     });
     return user;
   } catch (err) {
@@ -28,7 +28,6 @@ async function register(username, password, mail) {
         throw new DuplicateError(`Username ${username} already taken`);
       }
       case 'SequelizeValidationError': {
-        console.log(err);
         throw new WrongFormatError('Validation error');
       }
       default: {
@@ -107,12 +106,16 @@ async function deleteUser(id) {
 async function verify(username, password) {
   if (!username) throw new UndefinedError('Username is undefined !');
   if (!password) throw new UndefinedError('Password is undefined !');
-  const user = await findByName(username);
-  if (!user) throw new NotFoundError(`Unknown user ${username}`);
-  const match = await bcrypt.compare(password, user.password);
-  if (!match)
-    throw new ValidationError(`Password not match for user ${username}`);
-  return user;
+  try {
+    const user = await findByName(username);
+    if (!user) throw new NotFoundError(`Unknown user ${username}`);
+    const match = await bcrypt.compare(password, user.password);
+    if (!match)
+      throw new ValidationError(`Password not match for user ${username}`);
+    return user;
+  } catch (err) {
+    throw new NotFoundError(`Unknown user ${username}`);
+  }
 }
 
 async function generateJWT(id) {

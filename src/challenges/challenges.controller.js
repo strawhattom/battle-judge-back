@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const service = require('./challenges.service');
 const multer = require('multer');
+const authorized = require('../middlewares/authorization.middleware');
 const logger = require('../utils/logger');
 require('dotenv/config');
 
@@ -14,7 +15,7 @@ const multerFilter = (req, file, done) => {
 const upload = multer({ fileFilter: multerFilter });
 
 router
-  .route('/')
+  .route('/', authorized(['admin']))
   .get(async (req, res, next) => {
     try {
       return res.status(200).send(await service.getAllChallenges());
@@ -35,8 +36,16 @@ router
     }
   });
 
+router.route('/active').get(async (req, res, next) => {
+  try {
+    return res.status(200).send(await service.getActiveChallenges());
+  } catch (err) {
+    next(err);
+  }
+});
+
 router
-  .route('/:id')
+  .route('/:id', authorized(['admin']))
   .get(async (req, res, next) => {
     try {
       return res
@@ -48,21 +57,21 @@ router
   })
   .patch(async (req, res, next) => {
     try {
-      return res.status(200).send(await service.update(req.params.id, req.body))
+      return res
+        .status(200)
+        .send(await service.update(req.params.id, req.body));
     } catch (err) {
       next(err);
     }
   })
   .put(upload.array('resources', MAX_ARRAY_SIZE), async (req, res, next) => {
     try {
-      return res
-        .status(200)
-        .send(
-          await service.update(req.params.id, {
-            ...req.body,
-            resources: req.files
-          })
-        );
+      return res.status(200).send(
+        await service.update(req.params.id, {
+          ...req.body,
+          resources: req.files
+        })
+      );
     } catch (err) {
       next(err);
     }

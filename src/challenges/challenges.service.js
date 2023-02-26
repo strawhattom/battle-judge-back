@@ -149,6 +149,30 @@ const mergeChallenge = async (maria, mongo) => {
   return { ...maria, ...mongo };
 };
 
+const getActiveChallenges = async () => {
+  const rawChallenges = await Promise.all([
+    Challenge.find({ active: true }).select('-__v -flag'),
+    ChallengeTable.findAll({})
+  ]);
+  const mongoResult = rawChallenges[0];
+  const mariaResult = rawChallenges[1];
+
+  if (mongoResult.length === 0 || mariaResult.length === 0) return [];
+
+  // Fusionne les tableaux, ne prends pas en compte les challenges qui ne sont pas dans les deux bases de données.
+  const challenges = mongoResult.reduce((challenges, mongoChallenge) => {
+    const mariaId = mariaResult.find((mariaChallenge) => {
+      return (
+        mariaChallenge.dataValues.mongo_challenge_id ===
+        mongoChallenge._id.toString()
+      );
+    });
+    if (mariaId) challenges.push({ id: mariaId.id, ...mongoChallenge._doc });
+    return challenges;
+  }, []);
+  return challenges;
+};
+
 module.exports = {
   checkFileProperty,
   createOne,
@@ -156,5 +180,6 @@ module.exports = {
   findBySequenceId,
   update,
   deleteOne,
-  getResources
+  getResources,
+  getActiveChallenges
 };
