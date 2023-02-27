@@ -1,4 +1,4 @@
--- Active: 1677072536892@@127.0.0.1@3306@battle_judge
+-- Active: 1675949220290@@127.0.0.1@3306@battle_judge
 DROP SCHEMA IF EXISTS battle_judge;
 CREATE SCHEMA battle_judge;
 USE battle_judge;
@@ -28,7 +28,7 @@ CREATE TABLE Participate (participate_id INT AUTO_INCREMENT PRIMARY KEY,
 CREATE TABLE User (id INT AUTO_INCREMENT PRIMARY KEY,
 			    role ENUM('admin','judge', 'participant'),
 			    username VARCHAR(32) NOT NULL UNIQUE,
-			    mail VARCHAR(32) NOT NULL,
+			    email VARCHAR(32) NOT NULL,
 			    password VARCHAR(128) NOT NULL,
 			    teamId INT,
 			    CONSTRAINT fk_user FOREIGN KEY (teamId) REFERENCES Team(id) ON DELETE CASCADE ON UPDATE CASCADE

@@ -6,9 +6,8 @@ const Challenge = sequelize.define(
   {
     id: {
       type: DataTypes.INTEGER,
-      field: 'challenge_id',
       primaryKey: true,
-      auto_increment: true
+      autoIncrement: true
     },
     mongo_challenge_id: {
       type: DataTypes.STRING(32)

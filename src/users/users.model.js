@@ -12,7 +12,7 @@ const User = sequelize.define(
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      auto_increment: true
+      autoIncrement: true
     },
     role: {
       type: DataTypes.ENUM('admin', 'judge', 'participant'),
@@ -24,7 +24,7 @@ const User = sequelize.define(
       unique: true,
       allowNull: false
     },
-    mail: {
+    email: {
       type: DataTypes.STRING(32),
       allowNull: false,
       validate: {
@@ -58,8 +58,8 @@ const User = sequelize.define(
           user.dataValues.password = bcrypt.hashSync(user.password, saltRounds);
       },
       afterCreate: (user) => {
-        const { username, mail } = user.dataValues;
-        logger.info(`Created user ${username} with ${mail}`);
+        const { username, email } = user.dataValues;
+        logger.info(`Created user ${username} with ${email}`);
       },
       afterUpdate: (user) => {
         const { username } = user.dataValues;

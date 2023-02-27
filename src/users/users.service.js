@@ -7,20 +7,19 @@ const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
 const DuplicateError = require('../errors/DuplicateError');
 const WrongFormatError = require('../errors/WrongFormatError');
-const { col } = require('sequelize');
 require('dotenv').config();
 
-const FILTERED_FIELDS = ['id', 'username', 'mail', 'role'];
+const FILTERED_FIELDS = ['id', 'username', 'email', 'role'];
 
-async function register(username, password, mail) {
+async function register(username, password, email) {
   try {
     if (!username) throw new UndefinedError('Username is undefined !');
     if (!password) throw new UndefinedError('Password is undefined !');
-    if (!mail) throw new UndefinedError('Email is undefined !');
+    if (!email) throw new UndefinedError('Email is undefined !');
     const user = await User.create({
       username,
       password,
-      mail
+      email
     });
     return user;
   } catch (err) {
@@ -29,7 +28,6 @@ async function register(username, password, mail) {
         throw new DuplicateError(`Username ${username} already taken`);
       }
       case 'SequelizeValidationError': {
-        console.log(err);
         throw new WrongFormatError('Validation error');
       }
       default: {
@@ -86,6 +84,14 @@ async function update(user, properties) {
   // to-do user can't update his team if he is in an active battle.
   if (!user.id) throw new UndefinedError('User id is undefined !');
   if (properties.role) delete properties.role;
+  if (properties.username) delete properties.username;
+  const tempUser = await findById(user.id);
+  await tempUser.update(properties);
+  return await tempUser.save(); // updated user
+}
+
+async function updateAsAdmin(user, properties) {
+  if (!user.id) throw new UndefinedError('User id is undefined !');
   const tempUser = await findById(user.id);
   await tempUser.update(properties);
   return await tempUser.save(); // updated user
@@ -100,12 +106,16 @@ async function deleteUser(id) {
 async function verify(username, password) {
   if (!username) throw new UndefinedError('Username is undefined !');
   if (!password) throw new UndefinedError('Password is undefined !');
-  const user = await findByName(username);
-  if (!user) throw new NotFoundError(`Unknown user ${username}`);
-  const match = await bcrypt.compare(password, user.password);
-  if (!match)
-    throw new ValidationError(`Password not match for user ${username}`);
-  return user;
+  try {
+    const user = await findByName(username);
+    if (!user) throw new NotFoundError(`Unknown user ${username}`);
+    const match = await bcrypt.compare(password, user.password);
+    if (!match)
+      throw new ValidationError(`Password not match for user ${username}`);
+    return user;
+  } catch (err) {
+    throw new NotFoundError(`Unknown user ${username}`);
+  }
 }
 
 async function generateJWT(id) {
@@ -122,5 +132,6 @@ module.exports = {
   verify,
   generateJWT,
   update,
+  updateAsAdmin,
   deleteUser
 };

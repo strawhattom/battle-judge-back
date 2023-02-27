@@ -45,7 +45,10 @@ router
   })
   .patch(async (req, res, next) => {
     try {
-      const updatedUser = await service.update({ id: req.params.id }, req.body);
+      const updatedUser = await service.updateAsAdmin(
+        { id: req.params.id },
+        req.body
+      );
       return res.status(200).send(updatedUser);
     } catch (err) {
       next(err);

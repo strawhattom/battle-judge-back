@@ -17,7 +17,7 @@ beforeEach(() => {
 const _userTemplate = {
   id: '1',
   username: 'user',
-  mail: 'common@dns.com', // bcrypt hash with salt rounds of 10 of 'password'
+  email: 'common@dns.com', // bcrypt hash with salt rounds of 10 of 'password'
   role: 'participant', // default role user
   team: null
 };
@@ -28,7 +28,7 @@ const _mockUser = {
   id: 1,
   username: 'user',
   password: '$2b$10$uv.TXMXuQvC93dU0RRR/s.YM.9R9h9bQJZsWSkFM8A8YPQ9nWEZX2',
-  mail: 'user@dns.com'
+  email: 'user@dns.com'
 };
 
 jest.mock('./users.model');
@@ -82,7 +82,7 @@ describe('Register service', () => {
       await service.register(
         _mockUser.username,
         _mockUser.password,
-        _mockUser.mail
+        _mockUser.email
       )
     ).toStrictEqual(_mockUser);
     expect(User.create).toHaveBeenCalled();
@@ -91,7 +91,7 @@ describe('Register service', () => {
     await expect(service.register()).rejects.toThrow(UndefinedError);
     expect(User.create).not.toHaveBeenCalled();
   });
-  it('Should throw error with incorrect mail format', async () => {
+  it('Should throw error with incorrect email format', async () => {
     User.create.mockRejectedValue(new Sequelize.ValidationError());
     await expect(
       service.register(_mockUser.username, _mockUser.password, 'userdns.com')
@@ -101,7 +101,7 @@ describe('Register service', () => {
   it('Should throw error with existing username', async () => {
     User.create.mockRejectedValue(new Sequelize.UniqueConstraintError());
     await expect(
-      service.register(_mockUser.username, _mockUser.password, _mockUser.mail)
+      service.register(_mockUser.username, _mockUser.password, _mockUser.email)
     ).rejects.toThrow(DuplicateError);
     expect(User.create).toHaveBeenCalled();
   });
