@@ -9,7 +9,8 @@ const DuplicateError = require('../errors/DuplicateError');
 const WrongFormatError = require('../errors/WrongFormatError');
 require('dotenv').config();
 
-const FILTERED_FIELDS = ['id', 'username', 'email', 'role'];
+const FILTERED_FIELDS = ['id', 'username', 'email', 'role', 'teamId'];
+const FILTERED_FIELDS_ALL = ['id', 'username', 'email', 'role'];
 
 async function register(username, password, email) {
   try {
@@ -39,7 +40,7 @@ async function register(username, password, email) {
 
 async function findAll() {
   return await User.findAll({
-    attributes: FILTERED_FIELDS,
+    attributes: FILTERED_FIELDS_ALL,
     include: {
       model: Team
     }
@@ -47,7 +48,7 @@ async function findAll() {
 }
 
 async function findById(id) {
-  const user = await User.findByPk(id);
+  const user = await User.findOne({ where: { id }, attributes: FILTERED_FIELDS });
   if (!user) throw new NotFoundError(`User id ${id} not found`);
   return user;
 }
@@ -56,7 +57,8 @@ async function findByName(username) {
   const user = await User.findOne({
     where: {
       username
-    }
+    },
+    attributes: FILTERED_FIELDS
   });
   if (!user) throw new NotFoundError(`User ${username} not found`);
   return user;
@@ -83,6 +85,7 @@ async function findAllJudges() {
 async function update(user, properties) {
   // to-do user can't update his team if he is in an active battle.
   if (!user.id) throw new UndefinedError('User id is undefined !');
+  if (properties.id) delete properties.id;
   if (properties.role) delete properties.role;
   if (properties.username) delete properties.username;
   const tempUser = await findById(user.id);
@@ -92,6 +95,7 @@ async function update(user, properties) {
 
 async function updateAsAdmin(user, properties) {
   if (!user.id) throw new UndefinedError('User id is undefined !');
+  if (properties.id) delete properties.id;
   const tempUser = await findById(user.id);
   await tempUser.update(properties);
   return await tempUser.save(); // updated user
