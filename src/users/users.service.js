@@ -48,7 +48,7 @@ async function findAll() {
 }
 
 async function findById(id) {
-  const user = await User.findOne({ where: { id }, attributes: FILTERED_FIELDS });
+  const user = await User.findByPk(id, { attributes: FILTERED_FIELDS });
   if (!user) throw new NotFoundError(`User id ${id} not found`);
   return user;
 }
@@ -57,8 +57,7 @@ async function findByName(username) {
   const user = await User.findOne({
     where: {
       username
-    },
-    attributes: FILTERED_FIELDS
+    }
   });
   if (!user) throw new NotFoundError(`User ${username} not found`);
   return user;
@@ -110,16 +109,12 @@ async function deleteUser(id) {
 async function verify(username, password) {
   if (!username) throw new UndefinedError('Username is undefined !');
   if (!password) throw new UndefinedError('Password is undefined !');
-  try {
-    const user = await findByName(username);
-    if (!user) throw new NotFoundError(`Unknown user ${username}`);
-    const match = await bcrypt.compare(password, user.password);
-    if (!match)
-      throw new ValidationError(`Password not match for user ${username}`);
-    return user;
-  } catch (err) {
-    throw new NotFoundError(`Unknown user ${username}`);
-  }
+  const user = await findByName(username);
+  if (!user) throw new NotFoundError(`Unknown user ${username}`);
+  const match = await bcrypt.compare(password, user.password);
+  if (!match)
+    throw new ValidationError(`Password not match for user ${username}`);
+  return user;
 }
 
 async function generateJWT(id) {

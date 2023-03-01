@@ -6,6 +6,7 @@ const UndefinedError = require('../errors/UndefinedError');
 const WrongFormatError = require('../errors/WrongFormatError');
 const DuplicateError = require('../errors/DuplicateError');
 const NotFoundError = require('../errors/NotFoundError');
+const ValidationError = require('../errors/ValidationError');
 
 beforeEach(() => {
   User.findOne.mockClear();
