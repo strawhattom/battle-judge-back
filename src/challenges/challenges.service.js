@@ -151,7 +151,7 @@ const mergeChallenge = async (maria, mongo) => {
 
 const getActiveChallenges = async () => {
   const rawChallenges = await Promise.all([
-    Challenge.find({ active: true }).select('-__v -flag'),
+    Challenge.find({ active: true }).select('-__v -flag -active'),
     ChallengeTable.findAll({})
   ]);
   const mongoResult = rawChallenges[0];
@@ -170,7 +170,16 @@ const getActiveChallenges = async () => {
     if (mariaId) challenges.push({ id: mariaId.id, ...mongoChallenge._doc });
     return challenges;
   }, []);
-  return challenges;
+
+  // create new object of challenges sorted by category
+  const challengesByCategory = {};
+
+  challenges.forEach((challenge) => {
+    if (!challengesByCategory[challenge.category]) challengesByCategory[challenge.category] = [];
+    challengesByCategory[challenge.category].push(challenge);
+  });
+
+  return challengesByCategory;
 };
 
 module.exports = {
