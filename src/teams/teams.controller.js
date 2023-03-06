@@ -6,7 +6,9 @@ router
   .get(async (req, res) => {
     return res.status(200).send(await service.findAll());
   })
-  .post(async (req, res) => {});
+  .post(async (req, res) => {
+    return res.status(200).send(await service.create(req.body.name));
+  });
 
 router
   .route('/:name')
