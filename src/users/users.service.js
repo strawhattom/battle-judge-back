@@ -48,7 +48,12 @@ async function findAll() {
 }
 
 async function findById(id) {
-  const user = await User.findOne({ where: { id }, attributes: FILTERED_FIELDS });
+  const user = await User.findByPk(id, {
+    attributes: FILTERED_FIELDS,
+    include: {
+      model: Team
+    }
+  });
   if (!user) throw new NotFoundError(`User id ${id} not found`);
   return user;
 }
@@ -58,7 +63,9 @@ async function findByName(username) {
     where: {
       username
     },
-    attributes: FILTERED_FIELDS
+    include: {
+      model: Team
+    }
   });
   if (!user) throw new NotFoundError(`User ${username} not found`);
   return user;
@@ -90,7 +97,13 @@ async function update(user, properties) {
   if (properties.username) delete properties.username;
   const tempUser = await findById(user.id);
   await tempUser.update(properties);
-  return await tempUser.save(); // updated user
+  await tempUser.save();
+  const updatedUser = await findByName(user.username);
+
+  // supprime les informations sensibles / inutiles
+  delete updatedUser.dataValues.password;
+  delete updatedUser.dataValues.teamId;
+  return updatedUser; // updated user
 }
 
 async function updateAsAdmin(user, properties) {
@@ -110,16 +123,12 @@ async function deleteUser(id) {
 async function verify(username, password) {
   if (!username) throw new UndefinedError('Username is undefined !');
   if (!password) throw new UndefinedError('Password is undefined !');
-  try {
-    const user = await findByName(username);
-    if (!user) throw new NotFoundError(`Unknown user ${username}`);
-    const match = await bcrypt.compare(password, user.password);
-    if (!match)
-      throw new ValidationError(`Password not match for user ${username}`);
-    return user;
-  } catch (err) {
-    throw new NotFoundError(`Unknown user ${username}`);
-  }
+  const user = await findByName(username);
+  if (!user) throw new NotFoundError(`Unknown user ${username}`);
+  const match = await bcrypt.compare(password, user.password);
+  if (!match)
+    throw new ValidationError(`Password not match for user ${username}`);
+  return user;
 }
 
 async function generateJWT(id) {
