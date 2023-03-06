@@ -48,7 +48,12 @@ async function findAll() {
 }
 
 async function findById(id) {
-  const user = await User.findByPk(id, { attributes: FILTERED_FIELDS });
+  const user = await User.findByPk(id, {
+    attributes: FILTERED_FIELDS,
+    include: {
+      model: Team
+    }
+  });
   if (!user) throw new NotFoundError(`User id ${id} not found`);
   return user;
 }
@@ -57,6 +62,9 @@ async function findByName(username) {
   const user = await User.findOne({
     where: {
       username
+    },
+    include: {
+      model: Team
     }
   });
   if (!user) throw new NotFoundError(`User ${username} not found`);
@@ -89,7 +97,13 @@ async function update(user, properties) {
   if (properties.username) delete properties.username;
   const tempUser = await findById(user.id);
   await tempUser.update(properties);
-  return await tempUser.save(); // updated user
+  await tempUser.save();
+  const updatedUser = await findByName(user.username);
+
+  // supprime les informations sensibles / inutiles
+  delete updatedUser.dataValues.password;
+  delete updatedUser.dataValues.teamId;
+  return updatedUser; // updated user
 }
 
 async function updateAsAdmin(user, properties) {
