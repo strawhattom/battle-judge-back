@@ -4,7 +4,7 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY package*.json .
+COPY package*.json ./
 
 RUN npm pkg delete scripts.prepare
 # --ignore-scripts ne marche pas, il empêche l'installation de bcrypt
