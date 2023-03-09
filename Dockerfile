@@ -1,20 +1,18 @@
-FROM node:18-alpine
+FROM node:18-alpine as node
 
-# ENV VARIABLES REDACTED
-ENV PORT=3000
-ENV MONGO_URI=mongodb://example:example@bj-mongodb:27017
-ENV MARIADB_URI=mariadb://root:example@bj-mariadb:3306/battle_judge
+ENV NODE_ENV=production
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY package*.json ./
+COPY package*.json .
 
 RUN npm pkg delete scripts.prepare
-RUN HUSKY=0 npm ci --only=production
+# --ignore-scripts ne marche pas, il empêche l'installation de bcrypt
+RUN HUSKY=0 npm ci --only=production 
 
 COPY . .
 
 # REDACTED
 EXPOSE 3000
 
-CMD [ "npm", "start" ]
+CMD ["npm", "start"]
