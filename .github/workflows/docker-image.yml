@@ -15,8 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker-compose -f "docker-compose.yml" up -d --build
-      
-    - name: Stop containers
-      if: always()
-      run: docker-compose -f "docker-compose.yml" down
+      run: docker build . --tag battle-judge-back:$(date +%s)
