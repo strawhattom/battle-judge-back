@@ -18,8 +18,8 @@ beforeEach(() => {
 const _userTemplate = {
   id: '1',
   username: 'user',
-  email: 'common@dns.com', // bcrypt hash with salt rounds of 10 of 'password'
-  role: 'participant', // default role user
+  email: 'common@dns.com',
+  role: 'participant',
   team: null
 };
 

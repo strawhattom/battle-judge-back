@@ -48,12 +48,11 @@ const User = sequelize.define(
     timestamps: false,
     tableName: 'User',
     hooks: {
-      // Create one
       beforeCreate: (user) => {
         user.dataValues.password = bcrypt.hashSync(user.password, saltRounds);
       },
       beforeUpdate: (user) => {
-        // Hash password if the user changed his password
+        // Hash le mot de passe si l'utilisateur change son mot de passe avant de le sauvegarder
         if (user.changed('password'))
           user.dataValues.password = bcrypt.hashSync(user.password, saltRounds);
       },

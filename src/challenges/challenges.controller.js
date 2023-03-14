@@ -5,15 +5,24 @@ const authorized = require('../middlewares/authorization.middleware');
 const logger = require('../utils/logger');
 require('dotenv/config');
 
-const FILE_SIZE_LIMIT = 10000000; // file size limit 10mb
-const MAX_ARRAY_SIZE = 3; // max number of files in array
+const FILE_SIZE_LIMIT = 10000000; // Taille limite des fichiers en octets
+const MAX_ARRAY_SIZE = 3; // Nombre maximum de fichiers dans le tableau
 
+// TODO: On ne récupère que les fichiers textes, ajouter la limite de taille avec @const FILE_SIZE_LIMIT
 const multerFilter = (req, file, done) => {
-  console.log(file);
+  // console.log(file);
   done(null, true);
 };
+
+// Récupère le middleware multer et le stocke dans la constante `upload`
 const upload = multer({ fileFilter: multerFilter });
 
+/**
+ * Route pour récupérer tous les challenges ou en créer un
+ * ! seul les admins peuvent accéder à cette route
+ * @return {Array<Challenge>}
+ * 
+ */
 router
   .route('/', authorized(['admin']))
   .get(async (req, res, next) => {
@@ -24,7 +33,7 @@ router
     }
   })
   .post(upload.array('resources', MAX_ARRAY_SIZE), async (req, res, next) => {
-    console.log(req.body, req.files);
+    // console.log(req.body, req.files);
     try {
       const challenge = await service.createOne(req.user.id, {
         ...req.body,
@@ -36,6 +45,10 @@ router
     }
   });
 
+/**
+ * Route pour récupérer tous les challenges actifs
+ * @return {Array<Challenge>}
+ */
 router.route('/active').get(async (req, res, next) => {
   try {
     return res.status(200).send(await service.getActiveChallenges());
@@ -44,6 +57,12 @@ router.route('/active').get(async (req, res, next) => {
   }
 });
 
+/**
+ * Route pour récupérer, modifier ou supprimer un challenge grâce à son id
+ * ! seul les admins peuvent accéder à cette route
+ * @param {string} id
+ * @return {Challenge}
+ */
 router
   .route('/:id', authorized(['admin']))
   .get(async (req, res, next) => {

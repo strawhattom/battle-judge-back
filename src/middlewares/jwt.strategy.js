@@ -5,6 +5,11 @@ const setupErrorHandler = require('../errors/setup-error.handler');
 require('dotenv').config();
 
 try {
+  /**
+   * Stratégie d'authentification JWT, vérifie le token et extrait les données de l'utilisateur
+   * @param {string} token
+   * @return {object} les informations de l'utilisateur (id, username, email, team, role)
+   */
   passport.use(
     new Strategy(
       {

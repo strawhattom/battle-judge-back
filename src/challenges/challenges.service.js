@@ -5,9 +5,10 @@ const ValidationError = require('../errors/ValidationError');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongFormatError = require('../errors/WrongFormatError');
 
-/*
- * @param {number} id, challenge id
- * @param {object} file, file content to save
+/**
+ * Vérifie que le fichier est bien défini
+ * @param {number} id, id du challenge mongo
+ * @param {object} file, contenu du fichier
  */
 const checkFileProperty = async (id, file) => {
   if (!file || !id) throw new UndefinedError();
@@ -23,9 +24,10 @@ const checkFileProperty = async (id, file) => {
   return true;
 };
 
-/*
- * @param {db} can be either 'mongo' or 'maria', default value 'mongo'
- * @param {id} is the identification of one of the db
+/**
+ * Cherche un challenge dans la base de données par son id mongo ou mariadb
+ * @param {number} id, id du challenge mongo ou mariadb
+ * @param {string} db, dialecte de la base de données (mongo ou maria)
  */
 const findOne = async (id, db = 'mongo') => {
   switch (db) {
@@ -49,20 +51,38 @@ const findOne = async (id, db = 'mongo') => {
   }
 };
 
+/**
+ * Fusionne les deux challenges pour en créer un seul objet à renvoyer au client
+ * les paramètres sont des objets et non des instances de modèle, les données sont directement dans l'objet
+ * @param {object} maria, est le challenge de la base mariadb sous forme d'objet
+ * @param {object} mongo, est le challenge de la base mongo sous forme d'objet
+ * @return {object} is the challenge merged
+ */
+const mergeChallenge = async (maria, mongo) => {
+  if (maria.mongo_challenge_id) delete maria.mongo_challenge_id;
+  return { ...maria, ...mongo };
+};
+
+/**
+ * Crée un challenge dans les deux bases de données
+ * @param {number} authorId, id (mariadb) de l'utilisateur qui crée le challenge
+ * @param {object} challengeData, sont les données du challenge
+ * @return {object} est le challenge créé
+ */
 const createOne = async (authorId, challengeData) => {
   if (!authorId || !challengeData) throw new UndefinedError();
 
   const result = {};
 
-  // Mongo challence creation
+  // Crée le challenge dans la collection mongo
   const challenge = new Challenge({
     author: authorId,
     ...challengeData
   });
   await challenge.save();
   result.mongo = await findOne(challenge.id, 'mongo');
-  // Maria challenge creation
 
+  // Crée le challenge dans la table mariadb
   const challengeMaria = await ChallengeTable.create({
     author: authorId,
     mongo_challenge_id: challenge.id
@@ -72,6 +92,10 @@ const createOne = async (authorId, challengeData) => {
   return mergeChallenge(result.maria.dataValues, result.mongo._doc);
 };
 
+/**
+ * Récupère tous les challenges dans les deux bases de données
+ * @returns {Array} est un tableau de challenges
+ */
 const getAllChallenges = async () => {
   const rawChallenges = await Promise.all([
     Challenge.find().select('-__v'),
@@ -83,19 +107,30 @@ const getAllChallenges = async () => {
   if (mongoResult.length === 0 || mariaResult.length === 0) return [];
 
   // Fusionne les tableaux, ne prends pas en compte les challenges qui ne sont pas dans les deux bases de données.
+  // Array.prototype.reduce() permet de créer un tableau qui va se remplir au fur et à mesure de la boucle
   const challenges = mongoResult.reduce((challenges, mongoChallenge) => {
     const mariaId = mariaResult.find((mariaChallenge) => {
       return (
         mariaChallenge.dataValues.mongo_challenge_id ===
         mongoChallenge._id.toString()
       );
-    });
-    if (mariaId) challenges.push({ id: mariaId.id, ...mongoChallenge._doc });
-    return challenges;
-  }, []);
+      });
+      // Si le challenge est dans les deux bases de données, on le renvoie
+      if (mariaId) challenges.push({ id: mariaId.id, ...mongoChallenge._doc });
+      return challenges;
+  }
+  ,[]); // [] est le tableau de départ
   return challenges;
 };
 
+/**
+ * Récupère un challenge par son id mariadb car l'id mongo est dans la base mariadb
+ * 
+ * @param {number} id, id du challenge (mariadb)
+ * @param {boolean} mongoObject 
+ * @returns {object}  si `mongoObject` true, renvoie le challenge avec les données mongo,
+ *                    sinon renvoie un objet avec les données mongo et les données mariadb
+ */
 const findBySequenceId = async (id, mongoObject = false) => {
   if (!id) throw new UndefinedError('Challenge id is not defined');
   const maria = await findOne(id, 'maria');
@@ -109,25 +144,33 @@ const findBySequenceId = async (id, mongoObject = false) => {
   }
 };
 
-// id is the sequence id (mariadb one)
+/**
+ * 
+ * @param {number} id, id du challenge (mariadb) 
+ * @param {object} data, données à mettre à jour
+ * @returns {object} est le challenge mis à jour
+ */
 const update = async (id, data) => {
   if (!id) throw new UndefinedError('No id provided');
   if (!data) throw new WrongFormatError('No new data');
-  // Can't change author of the challenge
+  // On ne modifie pas l'auteur du challenge
   if (data.author) delete data.author;
+  // On récupère le challenge dans la base mariadb pour l'id mongo
   const mariaChallenge = await findOne(id, 'maria');
-  console.log(mariaChallenge.dataValues.mongo_challenge_id);
   await Challenge.findOneAndUpdate(
     { _id: mariaChallenge.dataValues.mongo_challenge_id },
     data
   );
-  return await findBySequenceId(id);
+  return await findBySequenceId(id); 
 };
 
-// id is the sequence id (mariadb one)
+/**
+ * Supprime un challenge dans les deux bases de données
+ * @param {number} id, id du challenge (mariadb) 
+ * @returns {object} est le challenge supprimé
+ */
 const deleteOne = async (id) => {
   if (!id) throw new UndefinedError('No id provided');
-  console.log('destroying mariachallenge ', id);
   const mariaChallenge = await findOne(id, 'maria');
   await mariaChallenge.destroy();
   const mongoChallenge = await findOne(
@@ -138,17 +181,21 @@ const deleteOne = async (id) => {
   return mergeChallenge(mariaChallenge.dataValues, mongoChallenge._doc);
 };
 
+/**
+ * Récupère les ressources d'un challenge (fichiers)
+ * @param {number} id, id du challenge (mariadb)
+ * @returns {Array} est un tableau de ressources
+ */
 const getResources = async (id) => {
   if (!id) throw new UndefinedError("No resource's id provided");
   const challenge = await findBySequenceId(id);
   return challenge.resources;
 };
 
-const mergeChallenge = async (maria, mongo) => {
-  if (maria.mongo_challenge_id) delete maria.mongo_challenge_id;
-  return { ...maria, ...mongo };
-};
-
+/**
+ * Récupère les challenges actifs
+ * @returns {Array} est un tableau de challenges actifs
+ */
 const getActiveChallenges = async () => {
   const rawChallenges = await Promise.all([
     Challenge.find({ active: true }).select('-__v -flag -active'),
@@ -171,7 +218,7 @@ const getActiveChallenges = async () => {
     return challenges;
   }, []);
 
-  // create new object of challenges sorted by category
+  // Crée un tableau de challenges par catégorie
   const challengesByCategory = {};
 
   challenges.forEach((challenge) => {

@@ -30,7 +30,7 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 
-// Root, welcome message
+/* Route principale, affiche un message de bienvenue */
 app.get('/', (req, res) => {
   return res.status(200).send({
     message:
@@ -38,42 +38,47 @@ app.get('/', (req, res) => {
   });
 });
 
-// Authentication route, login and register
+/* Route pour l'authentification (la génération du token) et l'inscription */
 app.use('/', authController);
 
-// Users route
+/* Route pour les utilisateurs, nécessite un token valide */
 app.use(
   '/users',
   passport.authenticate('jwt', { session: false }),
   usersController
 );
 
-// Challenges routes
+/* Route pour les challenges, nécessite un token valide */
 app.use(
   '/challenges',
   passport.authenticate('jwt', { session: false }),
   challengesController
 );
 
-// Battles route
+/* Route pour les battles, nécessite un token valide */
 app.use(
   '/battles',
   passport.authenticate('jwt', { session: false }),
   battlesController
 );
 
-// Teams route
+/* Route pour les teams, nécessite un token valide */
 app.use(
   '/teams',
   passport.authenticate('jwt', { session: false }),
   teamsController
 );
 
-// Middleware pour les erreurs
+/* Route pour les erreurs */
 app.use('/', errorHandler);
 
+/**
+ * Fonction principale
+ * Connecte à la base de données et lance le serveur s'il n'y a pas d'erreur
+ * @return {Promise<void>}
+ */
 const main = async () => {
-  // to-do loop to retry the connection...
+  // TODO: loop to retry the connection...
   try {
     logger.info('Trying to connect to databases.');
 

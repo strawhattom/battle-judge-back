@@ -3,6 +3,12 @@ const service = require('./users.service');
 const passport = require('passport');
 require('../middlewares/local.strategy');
 
+/**
+ * Route pour l'authentification (la génération du token)
+ * @param {string} username
+ * @param {string} password
+ * @return {token}
+ */
 router.post(
   '/login',
   passport.authenticate('local', {
@@ -15,6 +21,13 @@ router.post(
   }
 );
 
+/**
+ * Route pour l'inscription, contenu dans le payload de la requête
+ * @param {string} username
+ * @param {string} password
+ * @param {string} email
+ * @return {User}
+ */
 router.post('/register', async (req, res, next) => {
   try {
     const { username, password, email } = req.body;
