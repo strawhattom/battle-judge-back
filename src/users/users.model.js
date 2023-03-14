@@ -69,6 +69,7 @@ const User = sequelize.define(
   }
 );
 
+// Association entre Team et Utilisateur (nécessaire ?)
 Team.hasMany(User);
 User.belongsTo(Team, { foreignKey: 'teamId' });
 
