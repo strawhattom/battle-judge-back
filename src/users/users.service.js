@@ -9,9 +9,16 @@ const DuplicateError = require('../errors/DuplicateError');
 const WrongFormatError = require('../errors/WrongFormatError');
 require('dotenv').config();
 
-const FILTERED_FIELDS = ['id', 'username', 'email', 'role', 'teamId'];
-const FILTERED_FIELDS_ALL = ['id', 'username', 'email', 'role'];
+// On filtre les données pour ne pas donner les mots de passes hashés
+const FILTERED_FIELDS = ['id', 'username', 'email', 'role', 'teamId'];  // Pour le reste
+const FILTERED_FIELDS_ALL = ['id', 'username', 'email', 'role'];        // Pour findAll()
 
+/* Enregistrer un utilisateur
+* @params {email}:    email d'utilisateur
+* @params {password}: mot de passe en clair
+* @params {username}: nom d'utilisateur
+* @return User
+*/
 async function register(username, password, email) {
   try {
     if (!username) throw new UndefinedError('Username is undefined !');
@@ -24,6 +31,7 @@ async function register(username, password, email) {
     });
     return user;
   } catch (err) {
+    // Deux erreurs possibles : Nom d'utilisateur déjà utilisé ou problèmes de validation de l'utilisateur (voir `users.model.js`)
     switch (err.name) {
       case 'SequelizeUniqueConstraintError': {
         throw new DuplicateError(`Username ${username} already taken`);
@@ -38,15 +46,25 @@ async function register(username, password, email) {
   }
 }
 
+/* 
+* Récupère tous les utilisateurs sans leur équipes ni leur mot de passe
+* Le champ `teamId` n'est pas pris en compte car on fait une relation directement dans la requête avec `include`
+* return Array<User>
+*/
 async function findAll() {
   return await User.findAll({
     attributes: FILTERED_FIELDS_ALL,
+    // mettre en relation la table User et Team grâce aux modèles
     include: {
       model: Team
     }
   });
 }
 
+/* 
+* Récupère un utilisateur via son id (clé primaire)  
+* return User
+*/
 async function findById(id) {
   const user = await User.findByPk(id, {
     attributes: FILTERED_FIELDS,
@@ -58,6 +76,10 @@ async function findById(id) {
   return user;
 }
 
+/* 
+* Récupère un utilisateur via un nom d'utilisateur (unique)
+* return User
+*/
 async function findByName(username) {
   const user = await User.findOne({
     where: {
@@ -71,6 +93,10 @@ async function findByName(username) {
   return user;
 }
 
+/*
+* Récupère tous les participants
+* return Array<User>
+*/
 async function findAllParticipants() {
   return await User.findAll({
     where: {
@@ -80,6 +106,10 @@ async function findAllParticipants() {
   });
 }
 
+/*
+* Récupère tous les juges
+* return Array<User>
+*/
 async function findAllJudges() {
   return await User.findAll({
     where: {
@@ -89,9 +119,15 @@ async function findAllJudges() {
   });
 }
 
+/*
+* Mets à jour les informations d'un utilisateur et la retourne sans données inutiles / sensibles
+* return User
+*/
 async function update(user, properties) {
-  // to-do user can't update his team if he is in an active battle.
+  // @TODO l'utilisateur ne doit pas mettre à jour son équipe si une battle est "en cours" (active)
   if (!user.id) throw new UndefinedError('User id is undefined !');
+  
+  // L'utilisateur ne peut pas modifier son id, son rôle, son nom d'utilisateur
   if (properties.id) delete properties.id;
   if (properties.role) delete properties.role;
   if (properties.username) delete properties.username;
@@ -100,12 +136,15 @@ async function update(user, properties) {
   await tempUser.save();
   const updatedUser = await findByName(user.username);
 
-  // supprime les informations sensibles / inutiles
+  // supprime les informations sensibles / inutiles à renvoyer
   delete updatedUser.dataValues.password;
   delete updatedUser.dataValues.teamId;
-  return updatedUser; // updated user
+  return updatedUser;
 }
 
+/* Met à jour un utilisateur du point de vue de l'administrateur (peut modifier le mot de passe et le nom de l'utilisateur)
+* return User
+*/
 async function updateAsAdmin(user, properties) {
   if (!user.id) throw new UndefinedError('User id is undefined !');
   if (properties.id) delete properties.id;
@@ -114,12 +153,20 @@ async function updateAsAdmin(user, properties) {
   return await tempUser.save(); // updated user
 }
 
+/*
+* Supprime l'utilisateur, retourne l'utilisateur supprimé
+* return User
+*/
 async function deleteUser(id) {
   if (!id) throw new UndefinedError('User id is undefined !');
   const user = await findById(id);
   return await user.destroy();
 }
 
+/*
+* Vérifie si l'utilisateur peut se connecter en passant le nom de l'utilisateur et le mot de passe
+* return User
+*/
 async function verify(username, password) {
   if (!username) throw new UndefinedError('Username is undefined !');
   if (!password) throw new UndefinedError('Password is undefined !');
@@ -131,6 +178,10 @@ async function verify(username, password) {
   return user;
 }
 
+/*
+* Génère un token JWT pour l'authentification
+* return string
+*/
 async function generateJWT(id) {
   return jwt.sign({ sub: id }, process.env.JWT_SECRET);
 }
