@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const sequelize = require('./src/utils/db-connection');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const path = require('node:path');
 const app = express();
 // const http = require('http');
 // const server = http.createServer(app);
@@ -31,52 +30,47 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 
-if (process.env.NODE_ENV === 'production') {
-  console.log(
-    "Production mode activated, serving static files from 'dist' folder."
-  );
-  app.use(express.static(path.join(__dirname, 'dist')));
-  app.get(/^api/, (req, res) =>
-    res.sendFile(path.join(__dirname, 'dist/index.html'), function (err) {
-      if (err) res.json({ Warning: "You didn't build any file" });
-    })
-  );
-}
-
-app.get('/api', (req, res) => {
+// Root, welcome message
+app.get('/', (req, res) => {
   return res.status(200).send({
     message:
       "Hello, welcome to Battle Judge 's API, to start with, register yourself at /register and then /login to get access to your token."
   });
 });
 
-app.use('/api', authController);
+// Authentication route, login and register
+app.use('/', authController);
 
+// Users route
 app.use(
-  '/api/users',
+  '/users',
   passport.authenticate('jwt', { session: false }),
   usersController
 );
 
+// Challenges routes
 app.use(
-  '/api/challenges',
+  '/challenges',
   passport.authenticate('jwt', { session: false }),
   challengesController
 );
 
+// Battles route
 app.use(
-  '/api/battles',
+  '/battles',
   passport.authenticate('jwt', { session: false }),
   battlesController
 );
 
+// Teams route
 app.use(
-  '/api/teams',
+  '/teams',
   passport.authenticate('jwt', { session: false }),
   teamsController
 );
 
-app.use('/api/', errorHandler);
+// Middleware pour les erreurs
+app.use('/', errorHandler);
 
 const main = async () => {
   // to-do loop to retry the connection...
