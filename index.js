@@ -95,7 +95,7 @@ const main = async () => {
   }
   app.listen(port, () => {
     logger.info(
-      `API listening on port ${port}, visit http://localhost:${port}/api/`
+      `API listening on port ${port}, visit http://localhost:${port}/`
     );
   });
 };
